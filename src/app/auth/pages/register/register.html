@@ -1,0 +1,204 @@
+<!-- Register page — split-screen -->
+<div class="flex min-h-screen">
+
+  <!-- ── Panneau gauche (marque) ── -->
+  <div class="hidden lg:flex lg:w-[45%] relative flex-col justify-between overflow-hidden
+              bg-gradient-to-br from-violet-600 via-indigo-700 to-indigo-800 p-12">
+    <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/5"></div>
+    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-violet-500/10"></div>
+
+    <!-- Logo -->
+    <div class="relative z-10 flex items-center gap-3">
+      <div class="grid size-10 place-content-center rounded-xl bg-white/20 backdrop-blur-sm">
+        <svg class="size-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+      </div>
+      <span class="text-xl font-bold text-white tracking-wide">Yaahw</span>
+    </div>
+
+    <!-- Citation -->
+    <div class="relative z-10 max-w-xs">
+      <blockquote class="text-xl font-semibold text-white/90 italic leading-relaxed mb-4">
+        "Un outil pensé pour votre réalité, pas l'inverse."
+      </blockquote>
+      <div class="flex items-center gap-3 mt-6">
+        <div class="grid size-10 place-content-center rounded-full bg-white/20 text-white font-bold text-sm">Y</div>
+        <div>
+          <p class="text-sm font-medium text-white">Équipe Yaahw</p>
+          <p class="text-xs text-indigo-200/70">Ouagadougou, Burkina Faso</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="relative z-10 text-indigo-200/50 text-xs">© {{ currentYear }} Yaahw</p>
+  </div>
+
+  <!-- ── Panneau droit (formulaire) ── -->
+  <div class="flex flex-1 flex-col items-center justify-center px-6 py-12
+              bg-white dark:bg-slate-950 overflow-y-auto">
+
+    <!-- Logo mobile -->
+    <div class="mb-6 flex items-center gap-2 lg:hidden">
+      <div class="grid size-9 place-content-center rounded-xl bg-indigo-600">
+        <svg class="size-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+      </div>
+      <span class="text-lg font-bold text-slate-900 dark:text-white">Yaahw</span>
+    </div>
+
+    <div class="w-full max-w-sm">
+      <!-- Header -->
+      <div class="mb-7">
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Créer votre compte</h2>
+        <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+          Vous serez <span class="font-medium text-indigo-600 dark:text-indigo-400">Gérant</span> par défaut
+        </p>
+      </div>
+
+      <!-- Erreur globale -->
+      @if (errorMsg()) {
+        <div class="mb-5 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50
+                    dark:border-red-800/50 dark:bg-red-900/20 px-4 py-3">
+          <svg class="size-4 shrink-0 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+          </svg>
+          <p class="text-sm text-red-700 dark:text-red-400">{{ errorMsg() }}</p>
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" class="space-y-4">
+
+        <!-- Nom + Prénom côte à côte -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">Nom</label>
+            <input type="text" [(ngModel)]="nom" name="nom" placeholder="BATIONO"
+              autocomplete="family-name"
+              class="input-field" />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">Prénom</label>
+            <input type="text" [(ngModel)]="prenom" name="prenom" placeholder="Ulrich"
+              autocomplete="given-name"
+              class="input-field" />
+          </div>
+        </div>
+
+        <!-- Téléphone -->
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+            Numéro de téléphone
+          </label>
+          <div class="relative">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+              <svg class="size-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+            </div>
+            <input type="tel" [(ngModel)]="telephone" name="telephone"
+              placeholder="+226 70 00 00 00" autocomplete="tel"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-3
+                     text-sm text-slate-900 placeholder:text-slate-400
+                     focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20
+                     outline-none transition
+                     dark:border-slate-700 dark:bg-slate-800/50 dark:text-white dark:focus:bg-slate-800" />
+          </div>
+        </div>
+
+        <!-- Mot de passe -->
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">Mot de passe</label>
+          <div class="relative">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+              <svg class="size-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            </div>
+            <input [type]="showPassword() ? 'text' : 'password'"
+              [(ngModel)]="password" name="password"
+              placeholder="Min. 8 caractères" autocomplete="new-password"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-12 py-3
+                     text-sm text-slate-900 placeholder:text-slate-400
+                     focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20
+                     outline-none transition
+                     dark:border-slate-700 dark:bg-slate-800/50 dark:text-white dark:focus:bg-slate-800" />
+            <button type="button" (click)="togglePassword()"
+              class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+              <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                @if (showPassword()) {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                } @else {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                }
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirmer mot de passe -->
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+            Confirmer le mot de passe
+          </label>
+          <div class="relative">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+              <svg class="size-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <input [type]="showConfirm() ? 'text' : 'password'"
+              [(ngModel)]="confirmPassword" name="confirmPassword"
+              placeholder="Répétez le mot de passe" autocomplete="new-password"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-12 py-3
+                     text-sm text-slate-900 placeholder:text-slate-400
+                     focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20
+                     outline-none transition
+                     dark:border-slate-700 dark:bg-slate-800/50 dark:text-white dark:focus:bg-slate-800" />
+            <button type="button" (click)="toggleConfirm()"
+              class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+              <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                @if (showConfirm()) {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                } @else {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                }
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" [disabled]="loading()"
+          class="relative w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800
+                 disabled:opacity-60 disabled:cursor-not-allowed
+                 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-600/20
+                 transition-all duration-150 flex items-center justify-center gap-2 mt-2">
+          @if (loading()) {
+            <svg class="size-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            Création en cours...
+          } @else {
+            Créer mon compte
+          }
+        </button>
+      </form>
+
+      <p class="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+        Déjà un compte ?
+        <a routerLink="/auth/login"
+           class="ml-1 font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition">
+          Se connecter
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
