@@ -18,14 +18,14 @@ export class AdminOverviewComponent implements OnInit {
 
   readonly icons = { Store, Users, TrendingUp, ShoppingCart, ArrowRight, RefreshCw };
 
-  readonly TYPE_LABELS: Record<string, string> = {
+  readonly TYPE_LABELS: Partial<Record<string, string>> = {
     boutique:   '🛍️ Boutique',
     restaurant: '🍽️ Restaurant',
     pharmacie:  '💊 Pharmacie',
     cave:       '🍷 Cave',
   };
 
-  readonly MODE_LABELS: Record<string, string> = {
+  readonly MODE_LABELS: Partial<Record<string, string>> = {
     especes:      'Espèces',
     orange_money: 'Orange Money',
     moov_money:   'Moov Money',

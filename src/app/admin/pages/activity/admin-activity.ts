@@ -22,7 +22,7 @@ export class AdminActivityComponent implements OnInit {
 
   readonly icons = { Activity, ChevronLeft, ChevronRight, ChevronDown, ChevronUp };
 
-  readonly MODE_LABELS: Record<string, string> = {
+  readonly MODE_LABELS: Partial<Record<string, string>> = {
     especes:      '💵 Espèces',
     orange_money: '🟠 Orange Money',
     moov_money:   '🔵 Moov Money',

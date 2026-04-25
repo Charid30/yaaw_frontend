@@ -25,7 +25,7 @@ export class AdminShopsComponent implements OnInit {
 
   readonly icons = { Search, Store, ChevronLeft, ChevronRight, ToggleLeft, ToggleRight, Check, X };
 
-  readonly TYPE_COLORS: Record<string, string> = {
+  readonly TYPE_COLORS: Partial<Record<string, string>> = {
     boutique:   'bg-indigo-900/40 text-indigo-300',
     restaurant: 'bg-amber-900/40 text-amber-300',
     pharmacie:  'bg-emerald-900/40 text-emerald-300',
