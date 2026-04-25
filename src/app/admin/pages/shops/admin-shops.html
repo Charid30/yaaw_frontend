@@ -6,6 +6,14 @@
     <p class="text-sm text-slate-400 mt-0.5">{{ total() }} boutique{{ total() > 1 ? 's' : '' }} enregistrée{{ total() > 1 ? 's' : '' }}</p>
   </div>
 
+  <!-- Toast erreur -->
+  @if (errorMsg()) {
+    <div class="mb-4 flex items-center gap-2.5 bg-red-950/40 border border-red-800/50 text-red-400 rounded-xl px-4 py-3 text-sm cursor-pointer"
+         (click)="errorMsg.set('')">
+      ✕ {{ errorMsg() }}
+    </div>
+  }
+
   <!-- ── Recherche ────────────────────────────────────────────── -->
   <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 mb-4">
     <div class="relative">
@@ -89,29 +97,54 @@
 
                 <!-- Modules toggle -->
                 <td class="px-5 py-4">
-                  <div class="flex items-center justify-center gap-3">
+                  <div class="flex items-center justify-center gap-4">
+
                     <!-- Stock -->
-                    <button (click)="toggleModule(shop, 'stock')"
+                    <button type="button"
+                            (click)="toggleModule(shop, 'stock')"
                             [disabled]="updatingId() === shop.id"
-                            class="flex flex-col items-center gap-1 group disabled:opacity-40">
-                      <div class="w-10 h-5 rounded-full transition-colors relative"
-                           [ngClass]="shop.modules['stock'] ? 'bg-indigo-600' : 'bg-slate-700'">
-                        <div class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all"
-                             [ngClass]="shop.modules['stock'] ? 'left-5' : 'left-0.5'"></div>
-                      </div>
-                      <span class="text-[10px] text-slate-500 group-hover:text-slate-300">Stock</span>
+                            class="flex flex-col items-center gap-1.5 group cursor-pointer
+                                   disabled:cursor-wait disabled:opacity-60 transition-opacity">
+                      @if (updatingId() === shop.id) {
+                        <div class="w-10 h-5 flex items-center justify-center">
+                          <span class="w-4 h-4 border-2 border-slate-400 border-t-white rounded-full animate-spin block"></span>
+                        </div>
+                      } @else {
+                        <div class="w-10 h-5 rounded-full transition-all duration-200 relative"
+                             [ngClass]="shop.modules['stock'] ? 'bg-indigo-500' : 'bg-slate-600'">
+                          <div class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200"
+                               [ngClass]="shop.modules['stock'] ? 'left-[22px]' : 'left-0.5'"></div>
+                        </div>
+                      }
+                      <span class="text-[10px] font-medium transition-colors"
+                            [ngClass]="shop.modules['stock'] ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-300'">
+                        Stock
+                      </span>
                     </button>
+
                     <!-- Rapports -->
-                    <button (click)="toggleModule(shop, 'rapports')"
+                    <button type="button"
+                            (click)="toggleModule(shop, 'rapports')"
                             [disabled]="updatingId() === shop.id"
-                            class="flex flex-col items-center gap-1 group disabled:opacity-40">
-                      <div class="w-10 h-5 rounded-full transition-colors relative"
-                           [ngClass]="shop.modules['rapports'] ? 'bg-violet-600' : 'bg-slate-700'">
-                        <div class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all"
-                             [ngClass]="shop.modules['rapports'] ? 'left-5' : 'left-0.5'"></div>
-                      </div>
-                      <span class="text-[10px] text-slate-500 group-hover:text-slate-300">Rapports</span>
+                            class="flex flex-col items-center gap-1.5 group cursor-pointer
+                                   disabled:cursor-wait disabled:opacity-60 transition-opacity">
+                      @if (updatingId() === shop.id) {
+                        <div class="w-10 h-5 flex items-center justify-center">
+                          <span class="w-4 h-4 border-2 border-slate-400 border-t-white rounded-full animate-spin block"></span>
+                        </div>
+                      } @else {
+                        <div class="w-10 h-5 rounded-full transition-all duration-200 relative"
+                             [ngClass]="shop.modules['rapports'] ? 'bg-violet-500' : 'bg-slate-600'">
+                          <div class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200"
+                               [ngClass]="shop.modules['rapports'] ? 'left-[22px]' : 'left-0.5'"></div>
+                        </div>
+                      }
+                      <span class="text-[10px] font-medium transition-colors"
+                            [ngClass]="shop.modules['rapports'] ? 'text-violet-400' : 'text-slate-500 group-hover:text-slate-300'">
+                        Rapports
+                      </span>
                     </button>
+
                   </div>
                 </td>
 

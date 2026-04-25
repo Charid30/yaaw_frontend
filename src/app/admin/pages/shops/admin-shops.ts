@@ -22,6 +22,7 @@ export class AdminShopsComponent implements OnInit {
   readonly limit = 15;
 
   updatingId = signal<string | null>(null);
+  errorMsg   = signal('');
 
   readonly icons = { Search, Store, ChevronLeft, ChevronRight, ToggleLeft, ToggleRight, Check, X };
 
@@ -63,7 +64,9 @@ export class AdminShopsComponent implements OnInit {
 
   toggleModule(shop: AdminShop, module: 'stock' | 'rapports'): void {
     this.updatingId.set(shop.id);
-    const modules = { ...shop.modules, [module]: !shop.modules[module] };
+    this.errorMsg.set('');
+    const newVal  = !shop.modules[module];
+    const modules = { ...shop.modules, [module]: newVal };
     this.adminApi.updateShop(shop.id, { modules }).subscribe({
       next: () => {
         this.shops.update(list =>
@@ -71,7 +74,10 @@ export class AdminShopsComponent implements OnInit {
         );
         this.updatingId.set(null);
       },
-      error: () => this.updatingId.set(null),
+      error: (err) => {
+        this.errorMsg.set(err?.error?.message || `Impossible de modifier le module « ${module} ».`);
+        this.updatingId.set(null);
+      },
     });
   }
 
