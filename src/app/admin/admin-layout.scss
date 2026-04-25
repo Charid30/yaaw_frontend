@@ -1,0 +1,10 @@
+:host { display: contents; }
+
+.admin-nav-item {
+  @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400
+         hover:bg-slate-800 hover:text-white transition-colors cursor-pointer;
+}
+
+.admin-nav-active {
+  @apply bg-violet-900/40 text-violet-300 font-semibold;
+}

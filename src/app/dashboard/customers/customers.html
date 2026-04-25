@@ -1,0 +1,241 @@
+<!-- src/app/dashboard/customers/customers.html -->
+<div class="p-6 lg:p-8 max-w-5xl mx-auto">
+
+  <!-- ── En-tête ─────────────────────────────────────────────── -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Clients</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+        {{ total() }} client{{ total() > 1 ? 's' : '' }} enregistré{{ total() > 1 ? 's' : '' }}
+      </p>
+    </div>
+    <button (click)="openCreate()"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white
+                   bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700
+                   shadow-sm shadow-indigo-200 dark:shadow-indigo-900/50 transition-all self-start sm:self-auto">
+      <lucide-icon [img]="icons.UserPlus" [size]="15" />
+      Nouveau client
+    </button>
+  </div>
+
+  <!-- ── Toast ────────────────────────────────────────────────── -->
+  @if (successMsg()) {
+    <div class="mb-4 flex items-center gap-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200
+                dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400 rounded-xl px-4 py-3 text-sm">
+      ✓ {{ successMsg() }}
+    </div>
+  }
+
+  <!-- ── Barre de recherche ────────────────────────────────────── -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 mb-4">
+    <div class="relative">
+      <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-500 dark:text-slate-400">
+        <lucide-icon [img]="icons.Search" [size]="18" />
+      </span>
+      <input type="search" placeholder="Rechercher par nom, téléphone ou email…"
+             class="search-input"
+             [value]="searchQuery()"
+             (input)="onSearch($any($event.target).value)" />
+    </div>
+  </div>
+
+  <!-- ── Table ─────────────────────────────────────────────────── -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+
+    @if (loading()) {
+      <div class="flex items-center justify-center py-20">
+        <div class="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    } @else if (customers().length === 0) {
+      <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+        <lucide-icon [img]="icons.Users" [size]="48" class="mb-4 opacity-30" />
+        <p class="font-medium">Aucun client trouvé</p>
+        <p class="text-sm mt-1">{{ searchQuery() ? 'Essayez une autre recherche' : 'Ajoutez votre premier client' }}</p>
+      </div>
+    } @else {
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-slate-100 dark:border-slate-700">
+            <th class="text-left px-5 py-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">Client</th>
+            <th class="text-left px-5 py-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide hidden sm:table-cell">Contact</th>
+            <th class="text-left px-5 py-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide hidden md:table-cell">Note</th>
+            <th class="px-5 py-3 w-20"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of customers(); track c.id) {
+            <tr class="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+              <!-- Avatar + Nom -->
+              <td class="px-5 py-3.5">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                       [ngClass]="avatarColor(c.nom)">
+                    {{ initials(c.nom) }}
+                  </div>
+                  <div>
+                    <p class="font-medium text-slate-900 dark:text-white">{{ c.nom }}</p>
+                    @if (c.telephone) {
+                      <p class="text-xs text-slate-400 sm:hidden">{{ c.telephone }}</p>
+                    }
+                  </div>
+                </div>
+              </td>
+              <!-- Contact -->
+              <td class="px-5 py-3.5 hidden sm:table-cell">
+                <div class="space-y-0.5">
+                  @if (c.telephone) {
+                    <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                      <lucide-icon [img]="icons.Phone" [size]="12" class="text-slate-400" />
+                      <span>{{ c.telephone }}</span>
+                    </div>
+                  }
+                  @if (c.email) {
+                    <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs">
+                      <lucide-icon [img]="icons.Mail" [size]="12" class="text-slate-400" />
+                      <span>{{ c.email }}</span>
+                    </div>
+                  }
+                  @if (!c.telephone && !c.email) {
+                    <span class="text-slate-300 dark:text-slate-600 italic">—</span>
+                  }
+                </div>
+              </td>
+              <!-- Note -->
+              <td class="px-5 py-3.5 hidden md:table-cell max-w-[200px]">
+                @if (c.note) {
+                  <p class="text-slate-500 dark:text-slate-400 text-xs truncate">{{ c.note }}</p>
+                } @else {
+                  <span class="text-slate-300 dark:text-slate-600 italic">—</span>
+                }
+              </td>
+              <!-- Actions -->
+              <td class="px-5 py-3.5">
+                <div class="flex items-center justify-end gap-1">
+                  <button (click)="openEdit(c)"
+                          class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                    <lucide-icon [img]="icons.Pencil" [size]="15" />
+                  </button>
+                  <button (click)="confirmDelete(c)"
+                          [disabled]="deleting() === c.id"
+                          class="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-40">
+                    <lucide-icon [img]="icons.Trash2" [size]="15" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="flex items-center justify-between px-5 py-3 border-t border-slate-100 dark:border-slate-700">
+          <span class="text-xs text-slate-400">Page {{ currentPage() }} / {{ totalPages() }}</span>
+          <div class="flex gap-1">
+            <button (click)="prevPage()" [disabled]="currentPage() === 1"
+                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400
+                           hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-30 transition-all">
+              <lucide-icon [img]="icons.ChevronLeft" [size]="16" />
+            </button>
+            <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
+                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400
+                           hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-30 transition-all">
+              <lucide-icon [img]="icons.ChevronRight" [size]="16" />
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     MODAL Créer / Modifier un client
+     ════════════════════════════════════════════════════════════ -->
+@if (showModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="closeModal()"></div>
+
+    <!-- Panneau -->
+    <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <h2 class="font-semibold text-slate-900 dark:text-white">
+          {{ editingId() ? 'Modifier le client' : 'Nouveau client' }}
+        </h2>
+        <button (click)="closeModal()"
+                class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <lucide-icon [img]="icons.X" [size]="18" />
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-5 space-y-4">
+        @if (errorMsg()) {
+          <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50
+                      text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
+            {{ errorMsg() }}
+          </div>
+        }
+
+        <!-- Nom -->
+        <div>
+          <label class="label-field">Nom complet <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="form.nom" placeholder="ex : Koné Adama"
+                 class="input-field" />
+        </div>
+
+        <!-- Téléphone -->
+        <div>
+          <label class="label-field">Téléphone</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+              <lucide-icon [img]="icons.Phone" [size]="15" />
+            </span>
+            <input type="tel" [(ngModel)]="form.telephone" placeholder="ex : 07 01 02 03 04"
+                   class="input-field input-icon" />
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="label-field">Email</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+              <lucide-icon [img]="icons.Mail" [size]="15" />
+            </span>
+            <input type="email" [(ngModel)]="form.email" placeholder="ex : adama@email.com"
+                   class="input-field input-icon" />
+          </div>
+        </div>
+
+        <!-- Note -->
+        <div>
+          <label class="label-field">Note (optionnelle)</label>
+          <textarea [(ngModel)]="form.note" placeholder="Informations complémentaires…"
+                    rows="3" class="input-field resize-none"></textarea>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800">
+        <button (click)="closeModal()"
+                class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400
+                       hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          Annuler
+        </button>
+        <button (click)="save()" [disabled]="saving()"
+                class="px-5 py-2 rounded-xl text-sm font-semibold text-white
+                       bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700
+                       disabled:opacity-50 transition-all flex items-center gap-2">
+          @if (saving()) {
+            <span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+          }
+          {{ editingId() ? 'Mettre à jour' : 'Ajouter' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

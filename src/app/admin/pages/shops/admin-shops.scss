@@ -1,0 +1,8 @@
+:host { display: block; }
+
+.search-input {
+  @apply w-full rounded-xl border border-slate-700 bg-slate-800 pl-10 pr-4 py-2.5
+         text-sm text-slate-100 placeholder:text-slate-500
+         focus:border-violet-500 focus:bg-slate-800 focus:ring-2 focus:ring-violet-500/20
+         outline-none transition;
+}

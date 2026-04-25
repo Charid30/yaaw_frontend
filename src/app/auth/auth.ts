@@ -65,6 +65,7 @@ export class AuthService {
   private _clearSession(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem('yaahw_user');
+    localStorage.removeItem('yaahw_shop'); // purge shop cache
     this._token.set(null);
     this._user.set(null);
     this.router.navigate(['/auth/login']);

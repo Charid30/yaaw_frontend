@@ -5,6 +5,7 @@ import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../auth';
+import { ShopService } from '../../../shop/shop.service';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,11 @@ export class LoginComponent {
   errorMsg = signal('');
   readonly currentYear = new Date().getFullYear();
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private auth:        AuthService,
+    private shopService: ShopService,
+    private router:      Router,
+  ) {}
 
   togglePassword(): void {
     this.showPassword.update((v) => !v);
@@ -35,8 +40,21 @@ export class LoginComponent {
     }
 
     this.loading.set(true);
+
     this.auth.login({ telephone: this.telephone, password: this.password }).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => {
+        // ADMIN → back-office super-admin
+        if (this.auth.isAdmin()) {
+          this.router.navigate(['/admin']);
+          return;
+        }
+        // GÉRANT / CAISSIER → vérifier si boutique configurée
+        this.shopService.fetchMyShop().subscribe({
+          next:  () => this.router.navigate(['/dashboard']),
+          error: (err: HttpErrorResponse) =>
+            this.router.navigate([err.status === 404 ? '/onboarding' : '/dashboard']),
+        });
+      },
       error: (err: HttpErrorResponse) => {
         this.errorMsg.set(err.error?.message || 'Une erreur est survenue.');
         this.loading.set(false);

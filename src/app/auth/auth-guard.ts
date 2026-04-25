@@ -21,6 +21,7 @@ export const guestGuard: CanActivateFn = () => {
 
   if (!auth.isLoggedIn()) return true;
 
-  router.navigate(['/dashboard']);
+  // ADMIN → back-office, sinon → dashboard gérant
+  router.navigate([auth.isAdmin() ? '/admin' : '/dashboard']);
   return false;
 };

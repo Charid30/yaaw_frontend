@@ -40,3 +40,40 @@ html, body {
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* ── Impression ticket de caisse ─────────────── */
+@media print {
+  body * { visibility: hidden !important; }
+  .print-ticket,
+  .print-ticket * { visibility: visible !important; }
+  .print-ticket {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    z-index: 99999;
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  /* Masquer les boutons dans le ticket à l'impression */
+  .print-ticket .no-print { display: none !important; }
+}
+
+/* ── Impression rapports ──────────────────────── */
+@media print {
+  .print-reports-hide { display: none !important; }
+  .print-reports-show { display: block !important; }
+}
+
+/* ── Dashboard sidebar nav ────────────────────── */
+.nav-item {
+  @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-slate-400
+         hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100
+         transition-all duration-150 cursor-pointer no-underline;
+}
+.nav-item.nav-active {
+  @apply bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold;
+}

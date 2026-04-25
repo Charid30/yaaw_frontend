@@ -1,0 +1,212 @@
+<!-- src/app/dashboard/employees/employees.html -->
+<div class="p-6 lg:p-8 max-w-4xl mx-auto">
+
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Employés</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Gestion des caissiers de votre boutique</p>
+    </div>
+    <button (click)="openCreate()"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white
+                   bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700
+                   shadow-sm shadow-indigo-200 dark:shadow-indigo-900/50 transition-all">
+      <lucide-icon [img]="icons.UserPlus" [size]="15" />
+      Nouveau caissier
+    </button>
+  </div>
+
+  @if (successMsg()) {
+    <div class="mb-4 flex items-center gap-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200
+                dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400 rounded-xl px-4 py-3 text-sm">
+      ✓ {{ successMsg() }}
+    </div>
+  }
+
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+    @if (loading()) {
+      <div class="flex justify-center py-20">
+        <div class="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    } @else if (employees().length === 0) {
+      <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+        <lucide-icon [img]="icons.UserCog" [size]="48" class="mb-4 opacity-30" />
+        <p class="font-medium">Aucun caissier enregistré</p>
+        <p class="text-sm mt-1">Ajoutez votre premier caissier</p>
+      </div>
+    } @else {
+      <div class="divide-y divide-slate-100 dark:divide-slate-700">
+        @for (emp of employees(); track emp.id) {
+          <div class="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+
+            <!-- Avatar -->
+            <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300
+                        flex items-center justify-center text-sm font-bold shrink-0">
+              {{ initials(emp) }}
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="font-semibold text-slate-900 dark:text-white">{{ emp.prenom }} {{ emp.nom }}</p>
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                      [ngClass]="emp.is_active
+                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                        : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'">
+                  {{ emp.is_active ? 'Actif' : 'Inactif' }}
+                </span>
+              </div>
+              <p class="text-sm text-slate-500 dark:text-slate-400 font-mono">{{ emp.telephone }}</p>
+              <p class="text-xs text-slate-400 mt-0.5">Dernière connexion : {{ formatDate(emp.last_login) }}</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-1 shrink-0">
+              <!-- Activer/désactiver -->
+              <button (click)="toggle(emp)" [disabled]="toggling() === emp.id"
+                      [title]="emp.is_active ? 'Désactiver' : 'Activer'"
+                      class="p-1.5 rounded-lg transition-colors disabled:opacity-40"
+                      [ngClass]="emp.is_active
+                        ? 'hover:bg-amber-50 text-amber-500 dark:hover:bg-amber-900/20'
+                        : 'hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 dark:hover:bg-emerald-900/20'">
+                <lucide-icon [img]="emp.is_active ? icons.XCircle : icons.CheckCircle" [size]="16" />
+              </button>
+
+              <!-- Réinitialiser mdp -->
+              <button (click)="openReset(emp)" title="Réinitialiser le mot de passe"
+                      class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-indigo-600 transition-colors">
+                <lucide-icon [img]="icons.KeyRound" [size]="16" />
+              </button>
+
+              <!-- Modifier -->
+              <button (click)="openEdit(emp)"
+                      class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-indigo-600 transition-colors">
+                <lucide-icon [img]="icons.Pencil" [size]="15" />
+              </button>
+
+              <!-- Supprimer -->
+              <button (click)="confirmDelete(emp)" [disabled]="deleting() === emp.id"
+                      class="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-40">
+                <lucide-icon [img]="icons.Trash2" [size]="15" />
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal créer/modifier caissier -->
+@if (showModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="closeModal()"></div>
+    <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <h2 class="font-semibold text-slate-900 dark:text-white">
+          {{ editingId() ? 'Modifier le caissier' : 'Nouveau caissier' }}
+        </h2>
+        <button (click)="closeModal()" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <lucide-icon [img]="icons.X" [size]="18" />
+        </button>
+      </div>
+
+      <div class="px-6 py-5 space-y-4">
+        @if (errorMsg()) {
+          <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
+            {{ errorMsg() }}
+          </div>
+        }
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label-field">Prénom <span class="text-red-500">*</span></label>
+            <input type="text" [(ngModel)]="form.prenom" placeholder="ex : Adama" class="input-field" />
+          </div>
+          <div>
+            <label class="label-field">Nom <span class="text-red-500">*</span></label>
+            <input type="text" [(ngModel)]="form.nom" placeholder="ex : Koné" class="input-field" />
+          </div>
+        </div>
+
+        <div>
+          <label class="label-field">Téléphone <span class="text-red-500">*</span></label>
+          <input type="tel" [(ngModel)]="form.telephone" placeholder="ex : 07 01 02 03 04" class="input-field" />
+        </div>
+
+        @if (!editingId()) {
+          <div>
+            <label class="label-field">Mot de passe <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <input [type]="showPassword() ? 'text' : 'password'"
+                     [(ngModel)]="form.password"
+                     placeholder="Minimum 6 caractères"
+                     class="input-field input-icon-right" />
+              <button type="button" (click)="showPassword.set(!showPassword())"
+                      class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+                <lucide-icon [img]="showPassword() ? icons.EyeOff : icons.Eye" [size]="16" />
+              </button>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Le caissier pourra le modifier depuis ses paramètres</p>
+          </div>
+        }
+      </div>
+
+      <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800">
+        <button (click)="closeModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Annuler</button>
+        <button (click)="save()" [disabled]="saving()"
+                class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 transition-all flex items-center gap-2">
+          @if (saving()) { <span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span> }
+          {{ editingId() ? 'Mettre à jour' : 'Créer le compte' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal reset mot de passe -->
+@if (showResetModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="closeReset()"></div>
+    <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h2 class="font-semibold text-slate-900 dark:text-white">Réinitialiser le mot de passe</h2>
+          <p class="text-xs text-slate-400 mt-0.5">{{ resetTargetName() }}</p>
+        </div>
+        <button (click)="closeReset()" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <lucide-icon [img]="icons.X" [size]="18" />
+        </button>
+      </div>
+
+      <div class="px-6 py-5 space-y-4">
+        @if (errorMsg()) {
+          <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm">{{ errorMsg() }}</div>
+        }
+        <div>
+          <label class="label-field">Nouveau mot de passe</label>
+          <div class="relative">
+            <input [type]="showNewPwd() ? 'text' : 'password'"
+                   [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)"
+                   placeholder="Minimum 6 caractères"
+                   class="input-field input-icon-right" />
+            <button type="button" (click)="showNewPwd.set(!showNewPwd())"
+                    class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+              <lucide-icon [img]="showNewPwd() ? icons.EyeOff : icons.Eye" [size]="16" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800">
+        <button (click)="closeReset()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">Annuler</button>
+        <button (click)="confirmReset()" [disabled]="savingReset()"
+                class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 disabled:opacity-50 transition-all flex items-center gap-2">
+          @if (savingReset()) { <span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span> }
+          Réinitialiser
+        </button>
+      </div>
+    </div>
+  </div>
+}

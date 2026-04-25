@@ -1,6 +1,6 @@
 {
   "name": "yaahw-frontend",
-  "version": "0.2.0",
+  "version": "0.6.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -17,6 +17,8 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@angular/service-worker": "^21.2.10",
+    "lucide-angular": "^1.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

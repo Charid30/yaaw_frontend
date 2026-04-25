@@ -1,0 +1,377 @@
+<!-- src/app/dashboard/stock/stock.html -->
+<div class="p-4 lg:p-8 max-w-7xl mx-auto space-y-6">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <div class="flex items-start justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Stock</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Gestion des entrées, sorties et ajustements</p>
+    </div>
+    <button (click)="openHistory()"
+      class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
+             text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition shadow-sm">
+      <lucide-icon [img]="icons.History" [size]="15" />
+      Historique
+    </button>
+  </div>
+
+  <!-- ── KPI Cards ──────────────────────────────────────────── -->
+  @if (loadingSummary()) {
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      @for (_ of [1,2,3,4]; track $index) {
+        <div class="h-28 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+      }
+    </div>
+  } @else if (summary(); as s) {
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div class="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 mb-3">
+          <lucide-icon [img]="icons.Package" [size]="18" />
+        </div>
+        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ s.totalProducts }}</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Produits actifs</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-amber-200 dark:border-amber-800/50 shadow-sm">
+        <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-3">
+          <lucide-icon [img]="icons.ChevronDown" [size]="18" />
+        </div>
+        <p class="text-3xl font-bold text-amber-600 dark:text-amber-400">{{ s.lowStock }}</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Stock faible (≤ 5)</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-red-200 dark:border-red-800/50 shadow-sm">
+        <div class="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center text-red-500 dark:text-red-400 mb-3">
+          <lucide-icon [img]="icons.Minus" [size]="18" />
+        </div>
+        <p class="text-3xl font-bold text-red-500 dark:text-red-400">{{ s.outOfStock }}</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Rupture de stock</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-indigo-200 dark:border-indigo-800/50 shadow-sm">
+        <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-3">
+          <lucide-icon [img]="icons.ArrowUpFromLine" [size]="18" />
+        </div>
+        <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate">{{ formatPrice(s.saleValue) }}</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Valeur vente totale</p>
+      </div>
+    </div>
+  }
+
+  <!-- ── Filtres ────────────────────────────────────────────── -->
+  <div class="space-y-3">
+    <!-- Recherche — pleine largeur -->
+    <div class="relative">
+      <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center text-slate-400 pointer-events-none">
+        <lucide-icon [img]="icons.Search" [size]="18" />
+      </span>
+      <input type="text" placeholder="Rechercher un produit par nom…"
+        [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800
+               pl-11 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400
+               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition shadow-sm">
+    </div>
+    <!-- Tabs filtre stock -->
+    <div class="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 gap-1 w-fit">
+      @for (tab of [{key:'all',label:'Tous les produits'},{key:'low',label:'Stock faible'},{key:'out',label:'Rupture'}]; track tab.key) {
+        <button (click)="stockFilter.set($any(tab.key))"
+          [class]="stockFilter() === tab.key
+            ? 'px-4 py-2 rounded-lg text-sm font-medium bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+            : 'px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition'">
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ── Table produits ─────────────────────────────────────── -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+
+    @if (loadingSummary()) {
+      <div class="flex items-center justify-center py-16">
+        <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    } @else if (filteredProducts().length === 0) {
+      <div class="flex flex-col items-center justify-center py-16 text-center px-8 gap-3">
+        <lucide-icon [img]="icons.Package" [size]="36" class="text-slate-200 dark:text-slate-600" />
+        <p class="text-slate-600 dark:text-slate-400 font-medium">Aucun produit trouvé</p>
+        <p class="text-sm text-slate-400">Modifiez vos filtres ou ajoutez des produits</p>
+      </div>
+    } @else {
+
+      <!-- Desktop -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-slate-100 dark:border-slate-700">
+              <th class="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-6 py-3">Produit</th>
+              <th class="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-4 py-3">Catégorie</th>
+              <th class="text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-4 py-3">Stock</th>
+              <th class="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-4 py-3">Prix vente</th>
+              <th class="text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-4 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
+            @for (product of filteredProducts(); track product.id) {
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                <td class="px-6 py-4">
+                  <p class="font-medium text-slate-900 dark:text-white text-sm">{{ product.nom }}</p>
+                  <p class="text-xs text-slate-400">{{ product.unite }}</p>
+                </td>
+                <td class="px-4 py-4">
+                  @if (product.categorie) {
+                    <span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-lg"
+                      [style.background]="product.categorie.couleur + '20'"
+                      [style.color]="product.categorie.couleur">
+                      {{ product.categorie.icone }} {{ product.categorie.nom }}
+                    </span>
+                  } @else {
+                    <span class="text-xs text-slate-400">—</span>
+                  }
+                </td>
+                <td class="px-4 py-4 text-center">
+                  <span class="inline-flex items-center justify-center min-w-[3rem] px-3 py-1 rounded-xl text-sm font-bold border" [class]="stockBadge(product.stock_qty)">
+                    {{ product.stock_qty }}
+                  </span>
+                </td>
+                <td class="px-4 py-4 text-right">
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ formatPrice(product.prix) }}</span>
+                </td>
+                <td class="px-4 py-4">
+                  <div class="flex items-center justify-center gap-2">
+                    <button (click)="openModal(product, 'entree')" title="Entrée de stock"
+                      class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition flex items-center justify-center">
+                      <lucide-icon [img]="icons.ArrowDownToLine" [size]="14" />
+                    </button>
+                    <button (click)="openModal(product, 'sortie')" title="Sortie de stock" [disabled]="product.stock_qty === 0"
+                      class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 transition flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed">
+                      <lucide-icon [img]="icons.ArrowUpFromLine" [size]="14" />
+                    </button>
+                    <button (click)="openModal(product, 'ajustement')" title="Ajuster le stock"
+                      class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition flex items-center justify-center">
+                      <lucide-icon [img]="icons.SlidersHorizontal" [size]="14" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile -->
+      <div class="md:hidden divide-y divide-slate-100 dark:divide-slate-700/50">
+        @for (product of filteredProducts(); track product.id) {
+          <div class="p-4 flex items-center gap-3">
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-slate-900 dark:text-white text-sm truncate">{{ product.nom }}</p>
+              <p class="text-xs text-slate-400 mt-0.5">{{ product.unite }} · {{ formatPrice(product.prix) }}</p>
+            </div>
+            <span class="px-3 py-1 rounded-xl text-sm font-bold border" [class]="stockBadge(product.stock_qty)">{{ product.stock_qty }}</span>
+            <div class="flex gap-1">
+              <button (click)="openModal(product, 'entree')"
+                class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 hover:bg-emerald-100 transition flex items-center justify-center">
+                <lucide-icon [img]="icons.ArrowDownToLine" [size]="14" />
+              </button>
+              <button (click)="openModal(product, 'sortie')" [disabled]="product.stock_qty === 0"
+                class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/30 text-red-600 hover:bg-red-100 transition flex items-center justify-center disabled:opacity-40">
+                <lucide-icon [img]="icons.ArrowUpFromLine" [size]="14" />
+              </button>
+              <button (click)="openModal(product, 'ajustement')"
+                class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/30 text-amber-600 hover:bg-amber-100 transition flex items-center justify-center">
+                <lucide-icon [img]="icons.SlidersHorizontal" [size]="14" />
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ── Modal Mouvement ────────────────────────────────────────── -->
+@if (showModal()) {
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" (click)="closeModal()">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 z-10" (click)="$event.stopPropagation()">
+
+      <div class="flex items-start justify-between mb-5">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ modalTitle() }}</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-[22rem]">{{ selectedProduct()?.nom }}</p>
+        </div>
+        <button (click)="closeModal()"
+          class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-700 transition">
+          <lucide-icon [img]="icons.X" [size]="16" />
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 mb-5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
+        <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center">
+          <lucide-icon [img]="icons.Package" [size]="20" class="text-slate-400" />
+        </div>
+        <div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Stock actuel</p>
+          <p class="font-bold text-slate-900 dark:text-white text-lg">
+            {{ selectedProduct()?.stock_qty ?? 0 }}
+            <span class="text-sm font-normal text-slate-400">{{ selectedProduct()?.unite }}</span>
+          </p>
+        </div>
+      </div>
+
+      @if (errorMsg()) {
+        <div class="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 text-sm text-red-700 dark:text-red-400">
+          {{ errorMsg() }}
+        </div>
+      }
+
+      <div class="space-y-4">
+        @if (modalMode() === 'ajustement') {
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Nouvelle quantité en stock</label>
+            <input type="number" min="0" placeholder="0"
+              [ngModel]="formNewQty()" (ngModelChange)="formNewQty.set($event)" class="input-sm w-full">
+          </div>
+        } @else {
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Quantité à {{ modalMode() === 'entree' ? 'ajouter' : 'retirer' }}
+            </label>
+            <input type="number" min="1" placeholder="1"
+              [ngModel]="formQty()" (ngModelChange)="formQty.set(+$event)" class="input-sm w-full">
+          </div>
+        }
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            Motif <span class="text-slate-400 font-normal">(optionnel)</span>
+          </label>
+          <input type="text" placeholder="Ex : réapprovisionnement, perte..."
+            [ngModel]="formMotif()" (ngModelChange)="formMotif.set($event)" class="input-sm w-full">
+        </div>
+      </div>
+
+      @if (selectedProduct(); as p) {
+        @if (modalMode() !== 'ajustement' && formQty() && formQty()! > 0) {
+          <div class="mt-4 flex items-center justify-between p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/50">
+            <span class="text-sm text-slate-600 dark:text-slate-300">Nouveau stock :</span>
+            <span class="font-bold text-indigo-700 dark:text-indigo-400">
+              {{ modalMode() === 'entree' ? p.stock_qty + (formQty() ?? 0) : p.stock_qty - (formQty() ?? 0) }} {{ p.unite }}
+            </span>
+          </div>
+        }
+        @if (modalMode() === 'ajustement' && formNewQty() !== null) {
+          <div class="mt-4 flex items-center justify-between p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50">
+            <span class="text-sm text-slate-600 dark:text-slate-300">Écart :</span>
+            <span class="font-bold" [class]="(formNewQty()! - p.stock_qty) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'">
+              {{ (formNewQty()! - p.stock_qty) >= 0 ? '+' : '' }}{{ formNewQty()! - p.stock_qty }} {{ p.unite }}
+            </span>
+          </div>
+        }
+      }
+
+      <div class="flex gap-3 mt-6">
+        <button (click)="closeModal()" [disabled]="processing()"
+          class="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+          Annuler
+        </button>
+        <button (click)="submit()" [disabled]="processing()"
+          [class]="'flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition ' +
+            (modalMode() === 'entree' ? 'bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400' :
+             modalMode() === 'sortie' ? 'bg-red-500 hover:bg-red-600 disabled:bg-red-400' :
+             'bg-amber-500 hover:bg-amber-600 disabled:bg-amber-400')">
+          @if (processing()) {
+            <span class="flex items-center justify-center gap-2">
+              <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              Enregistrement…
+            </span>
+          } @else { Confirmer }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Historique ─────────────────────────────────────────────── -->
+@if (showHistory()) {
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" (click)="showHistory.set(false)">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl z-10 max-h-[85vh] flex flex-col" (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-700/50 shrink-0">
+        <div class="flex items-center gap-2">
+          <lucide-icon [img]="icons.History" [size]="18" class="text-slate-400" />
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Historique des mouvements</h2>
+            <p class="text-xs text-slate-400 mt-0.5">50 derniers mouvements</p>
+          </div>
+        </div>
+        <button (click)="showHistory.set(false)"
+          class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-700 transition">
+          <lucide-icon [img]="icons.X" [size]="16" />
+        </button>
+      </div>
+
+      <div class="px-6 py-3 border-b border-slate-100 dark:border-slate-700/50 shrink-0 flex gap-2 overflow-x-auto">
+        <button (click)="movementTypeFilter.set(''); loadMovements()"
+          [class]="movementTypeFilter() === ''
+            ? 'px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900 dark:bg-white text-white dark:text-slate-900 whitespace-nowrap'
+            : 'px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition whitespace-nowrap'">
+          Tous
+        </button>
+        @for (t of MOVEMENT_TYPES; track t.key) {
+          <button (click)="movementTypeFilter.set(t.key); loadMovements()"
+            [class]="movementTypeFilter() === t.key
+              ? 'px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-900 dark:bg-white text-white dark:text-slate-900 whitespace-nowrap'
+              : 'px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition whitespace-nowrap'">
+            {{ t.label }}
+          </button>
+        }
+      </div>
+
+      <div class="overflow-y-auto flex-1 px-6 py-4 space-y-2">
+        @if (loadingMovements()) {
+          <div class="flex justify-center py-12">
+            <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        } @else if (movements().length === 0) {
+          <div class="flex flex-col items-center py-12 text-slate-400 text-sm gap-2">
+            <lucide-icon [img]="icons.History" [size]="28" class="text-slate-200 dark:text-slate-600" />
+            Aucun mouvement pour ce filtre
+          </div>
+        } @else {
+          @for (mv of movements(); track mv.id) {
+            <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                [ngClass]="{
+                  'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400': mv.type === 'entree',
+                  'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400':                 mv.type === 'sortie',
+                  'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400':         mv.type === 'ajustement',
+                  'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400':             mv.type === 'vente'
+                }">
+                @if (mv.type === 'entree')     { <lucide-icon [img]="icons.ArrowDownToLine"  [size]="15" /> }
+                @if (mv.type === 'sortie')     { <lucide-icon [img]="icons.ArrowUpFromLine"  [size]="15" /> }
+                @if (mv.type === 'ajustement') { <lucide-icon [img]="icons.SlidersHorizontal" [size]="15" /> }
+                @if (mv.type === 'vente')      { <lucide-icon [img]="icons.Package"           [size]="15" /> }
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="text-sm font-medium text-slate-900 dark:text-white truncate">{{ mv.product?.nom ?? '—' }}</p>
+                  <span class="text-xs px-2 py-0.5 rounded-lg border" [class]="movementBadge(mv.type)">{{ movementLabel(mv.type) }}</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-0.5">
+                  {{ formatDate(mv.created_at) }}
+                  @if (mv.motif) { · {{ mv.motif }} }
+                  @if (mv.user) { · {{ mv.user.prenom }} {{ mv.user.nom }} }
+                </p>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="font-bold text-sm"
+                  [class]="mv.type === 'entree' ? 'text-emerald-600 dark:text-emerald-400' : mv.type === 'ajustement' ? 'text-amber-600 dark:text-amber-400' : 'text-red-500 dark:text-red-400'">
+                  {{ deltaSign(mv.type) }}{{ mv.quantite }} {{ mv.product?.unite }}
+                </p>
+                <p class="text-xs text-slate-400 mt-0.5">{{ mv.stock_avant }} → {{ mv.stock_apres }}</p>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+}

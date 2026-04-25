@@ -1,0 +1,515 @@
+<div class="flex h-[calc(100vh-56px)] lg:h-screen overflow-hidden bg-slate-100 dark:bg-slate-950">
+
+  <!-- ══════════════════════════════════════════
+       PANNEAU GAUCHE — Catalogue produits
+  ══════════════════════════════════════════ -->
+  <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
+
+    <!-- Barre de recherche + catégories -->
+    <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 pt-4 pb-3 shrink-0">
+      <!-- Header + historique -->
+      <div class="flex items-center justify-between mb-3">
+        <h1 class="text-lg font-bold text-slate-900 dark:text-white">Caisse</h1>
+        <button (click)="openHistory()"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Historique
+        </button>
+      </div>
+
+      <!-- Recherche -->
+      <div class="relative mb-3">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center text-slate-400 pointer-events-none">
+          <lucide-icon [img]="icons.Search" [size]="17" />
+        </span>
+        <input type="search" placeholder="Rechercher un produit…"
+               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50
+                      pl-11 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400
+                      focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 outline-none transition"
+               [value]="searchQuery()"
+               (input)="onSearch($any($event.target).value)" />
+      </div>
+
+      <!-- Filtres catégories -->
+      <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <button (click)="setCategory('')"
+                class="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                [ngClass]="activeCategory() === ''
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'">
+          Tous
+        </button>
+        @for (cat of categories(); track cat.id) {
+          <button (click)="setCategory(cat.id)"
+                  class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                  [ngClass]="activeCategory() === cat.id
+                    ? 'text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'"
+                  [style.background-color]="activeCategory() === cat.id ? cat.couleur : ''">
+            {{ cat.icone }} {{ cat.nom }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Grille produits -->
+    <div class="flex-1 overflow-y-auto p-4">
+      @if (loadingProducts()) {
+        <div class="flex items-center justify-center h-40">
+          <svg class="w-7 h-7 animate-spin text-indigo-400" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        </div>
+      } @else if (filteredProducts().length === 0) {
+        <div class="flex flex-col items-center justify-center h-40 text-center">
+          <span class="text-4xl mb-2">📦</span>
+          <p class="text-slate-500 text-sm">Aucun produit trouvé</p>
+        </div>
+      } @else {
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-4 gap-3">
+          @for (product of filteredProducts(); track product.id) {
+            <button type="button"
+                    (click)="addToCart(product)"
+                    [disabled]="product.stock_qty <= 0"
+                    class="relative flex flex-col bg-white dark:bg-slate-800 rounded-2xl p-4 text-left border-2 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                    [ngClass]="cartQty(product.id) > 0
+                      ? 'border-indigo-400 bg-indigo-50/50 dark:border-indigo-500 dark:bg-indigo-950/20 shadow-sm shadow-indigo-100'
+                      : 'border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:shadow-sm'">
+
+              <!-- Badge quantité dans le panier -->
+              @if (cartQty(product.id) > 0) {
+                <span class="absolute top-2 right-2 w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center">
+                  {{ cartQty(product.id) }}
+                </span>
+              }
+
+              <!-- Icône catégorie -->
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3"
+                   [style.background-color]="(product.categorie?.couleur ?? '#6366f1') + '20'">
+                {{ product.categorie?.icone ?? '📦' }}
+              </div>
+
+              <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-tight line-clamp-2 mb-2 flex-1">
+                {{ product.nom }}
+              </p>
+
+              <div class="mt-auto">
+                <p class="text-base font-bold text-indigo-600 dark:text-indigo-400">
+                  {{ formatPrice(product.prix) }}
+                </p>
+                <p class="text-xs mt-0.5"
+                   [ngClass]="product.stock_qty <= 0
+                     ? 'text-red-500'
+                     : product.stock_qty <= 5
+                       ? 'text-amber-500'
+                       : 'text-slate-400'">
+                  @if (product.stock_qty <= 0) { Rupture }
+                  @else { Stock : {{ product.stock_qty }} {{ product.unite }} }
+                </p>
+              </div>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PANNEAU DROIT — Panier + Paiement
+  ══════════════════════════════════════════ -->
+  <div class="w-80 lg:w-96 flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shrink-0">
+
+    <!-- En-tête panier -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <span class="font-bold text-slate-900 dark:text-white">Panier</span>
+        @if (cartItemCount() > 0) {
+          <span class="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold flex items-center justify-center">
+            {{ cartItemCount() }}
+          </span>
+        }
+      </div>
+      @if (cart().length > 0) {
+        <button (click)="clearCart()" class="text-xs text-red-400 hover:text-red-600 transition-colors font-medium">
+          Vider
+        </button>
+      }
+    </div>
+
+    <!-- Liste articles -->
+    <div class="flex-1 overflow-y-auto px-4 py-3">
+      @if (cart().length === 0) {
+        <div class="flex flex-col items-center justify-center h-full text-center py-10">
+          <span class="text-5xl mb-3 opacity-30">🛒</span>
+          <p class="text-slate-400 text-sm">Sélectionnez des produits<br>pour commencer</p>
+        </div>
+      } @else {
+        <div class="space-y-2">
+          @for (item of cart(); track item.product.id) {
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+              <!-- Icône -->
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg shrink-0"
+                   [style.background-color]="(item.product.categorie?.couleur ?? '#6366f1') + '20'">
+                {{ item.product.categorie?.icone ?? '📦' }}
+              </div>
+              <!-- Nom + prix -->
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{{ item.product.nom }}</p>
+                <p class="text-xs text-slate-500">{{ formatPrice(item.product.prix) }} × {{ item.quantity }} = <span class="font-semibold text-slate-700 dark:text-slate-200">{{ formatPrice(item.product.prix * item.quantity) }}</span></p>
+              </div>
+              <!-- Contrôles qté -->
+              <div class="flex items-center gap-1 shrink-0">
+                <button (click)="updateQty(item.product.id, -1)"
+                        class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 flex items-center justify-center text-sm font-bold transition-colors">
+                  −
+                </button>
+                <span class="w-6 text-center text-sm font-bold text-slate-900 dark:text-slate-100">{{ item.quantity }}</span>
+                <button (click)="updateQty(item.product.id, 1)"
+                        [disabled]="item.quantity >= item.product.stock_qty"
+                        class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:text-indigo-600 flex items-center justify-center text-sm font-bold transition-colors disabled:opacity-40">
+                  +
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Sélecteur client (optionnel) -->
+    @if (cart().length > 0) {
+      <div class="px-4 pb-2 shrink-0">
+        @if (selectedCustomer()) {
+          <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 text-sm">
+            <span class="font-medium text-indigo-700 dark:text-indigo-300 truncate">{{ selectedCustomer()!.nom }}</span>
+            <button (click)="clearCustomer()" class="ml-2 text-indigo-400 hover:text-indigo-700 shrink-0 text-lg leading-none">&times;</button>
+          </div>
+        } @else {
+          <div class="relative">
+            <input type="text" placeholder="Client (optionnel)…"
+                   class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50
+                          px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none
+                          focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition"
+                   [ngModel]="customerSearch()"
+                   (ngModelChange)="customerSearch.set($event); showCustomerDrop.set(true)"
+                   (focus)="showCustomerDrop.set(true)"
+                   (blur)="$any($event.relatedTarget)?.closest('.customer-drop') ? null : showCustomerDrop.set(false)" />
+            @if (showCustomerDrop() && filteredCustomers().length > 0) {
+              <div class="customer-drop absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-20 overflow-hidden">
+                @for (c of filteredCustomers(); track c.id) {
+                  <button type="button" (mousedown)="selectCustomer(c)"
+                          class="w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-slate-900 dark:text-white transition-colors">
+                    <span class="font-medium">{{ c.nom }}</span>
+                    @if (c.telephone) { <span class="text-slate-400 text-xs ml-2">{{ c.telephone }}</span> }
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Remise / Promotion -->
+    @if (cart().length > 0) {
+      <div class="px-4 pb-2 shrink-0">
+        <div class="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-3 py-2">
+          <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">Remise</span>
+          <!-- Toggle % / fixe -->
+          <div class="flex rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
+            <button type="button"
+                    (click)="discountType.set('percent'); discountValue.set(0)"
+                    class="px-2 py-1 text-xs font-semibold transition-colors"
+                    [ngClass]="discountType() === 'percent'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100'">
+              %
+            </button>
+            <button type="button"
+                    (click)="discountType.set('fixed'); discountValue.set(0)"
+                    class="px-2 py-1 text-xs font-semibold transition-colors"
+                    [ngClass]="discountType() === 'fixed'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100'">
+              {{ devise() }}
+            </button>
+          </div>
+          <!-- Input valeur -->
+          <input type="number" min="0"
+                 [max]="discountType() === 'percent' ? 100 : cartTotal()"
+                 [ngModel]="discountValue()"
+                 (ngModelChange)="discountValue.set(+$event || 0)"
+                 placeholder="0"
+                 class="flex-1 min-w-0 bg-transparent text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none text-right" />
+          @if (discountAmount() > 0) {
+            <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium shrink-0">
+              −{{ formatPrice(discountAmount()) }}
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Total + paiement -->
+    @if (cart().length > 0) {
+      <div class="border-t border-slate-100 dark:border-slate-800 px-5 py-4 space-y-4 shrink-0">
+
+        <!-- Totaux -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-sm text-slate-500 dark:text-slate-400">
+            <span>Sous-total</span>
+            <span>{{ formatPrice(cartTotal()) }}</span>
+          </div>
+          @if (discountAmount() > 0) {
+            <div class="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
+              <span>Remise</span>
+              <span>−{{ formatPrice(discountAmount()) }}</span>
+            </div>
+          }
+          @if (tvaAmount() > 0) {
+            <div class="flex justify-between text-sm text-slate-500 dark:text-slate-400">
+              <span>TVA ({{ shop()!.tva_rate }} %)</span>
+              <span>{{ formatPrice(tvaAmount()) }}</span>
+            </div>
+          }
+          <div class="flex justify-between text-base font-bold text-slate-900 dark:text-white pt-1 border-t border-slate-100 dark:border-slate-700">
+            <span>Total</span>
+            <span class="text-indigo-600 dark:text-indigo-400">{{ formatPrice(grandTotal()) }}</span>
+          </div>
+        </div>
+
+        <!-- Mode de paiement -->
+        <div>
+          <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Paiement</p>
+          <div class="grid grid-cols-3 gap-2">
+            @for (method of paymentMethods; track method.key) {
+              <button type="button" (click)="paymentMethod.set(method.key)"
+                      class="flex flex-col items-center gap-1 p-2.5 rounded-xl border-2 text-xs font-semibold transition-all"
+                      [ngClass]="paymentMethod() === method.key
+                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:border-indigo-400 dark:text-indigo-300'
+                        : 'border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:text-slate-400'">
+                <span class="text-lg">{{ method.icon }}</span>
+                <span class="leading-tight text-center">{{ method.label }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Montant reçu (espèces) -->
+        @if (paymentMethod() === 'especes') {
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+              Montant reçu ({{ devise() }})
+            </label>
+            <input type="number"
+                   [ngModel]="amountReceived()"
+                   (ngModelChange)="amountReceived.set($event)"
+                   [placeholder]="grandTotal().toString()"
+                   min="0"
+                   class="input-sm text-center text-lg font-bold" />
+            @if ((amountReceived() ?? 0) >= grandTotal() && amountReceived() !== null) {
+              <div class="mt-2 flex justify-between items-center px-4 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+                <span class="text-sm text-emerald-700 dark:text-emerald-400 font-medium">Monnaie à rendre</span>
+                <span class="text-base font-bold text-emerald-700 dark:text-emerald-400">{{ formatPrice(change()) }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <!-- Mobile money -->
+          <div class="px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <p class="text-sm text-center text-slate-600 dark:text-slate-300 font-medium">
+              {{ paymentMethod() === 'orange_money' ? '🟠 Orange Money' : '🔵 Moov Money' }}
+            </p>
+            <p class="text-xl font-bold text-center text-indigo-600 dark:text-indigo-400 mt-1">
+              {{ formatPrice(grandTotal()) }}
+            </p>
+            <p class="text-xs text-center text-slate-400 mt-1">Montant exact à envoyer</p>
+          </div>
+        }
+
+        <!-- Note -->
+        <div>
+          <input type="text" [ngModel]="note()" (ngModelChange)="note.set($event)"
+                 placeholder="Note (optionnel)…"
+                 class="input-sm text-sm" />
+        </div>
+
+        <!-- Erreur -->
+        @if (errorMsg()) {
+          <div class="flex items-center gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 rounded-xl px-3 py-2.5 text-sm">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ errorMsg() }}
+          </div>
+        }
+
+        <!-- Bouton valider -->
+        <button type="button"
+                (click)="validateSale()"
+                [disabled]="!canValidate()"
+                class="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md shadow-indigo-200 dark:shadow-indigo-900/50">
+          @if (processing()) {
+            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Traitement…
+          } @else {
+            ✓ Valider la vente · {{ formatPrice(grandTotal()) }}
+          }
+        </button>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODAL — Ticket de caisse
+══════════════════════════════════════════════════════ -->
+@if (showReceipt() && lastSale()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm print:bg-transparent">
+    <div class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden print-ticket">
+
+      <!-- En-tête ticket -->
+      <div class="bg-gradient-to-br from-indigo-600 to-violet-600 px-6 py-6 text-center text-white">
+        <p class="text-2xl font-extrabold tracking-tight">{{ shop()?.nom ?? 'YAAHW' }}</p>
+        <p class="text-sm opacity-80 mt-1 capitalize">{{ shop()?.type_commerce }}</p>
+        <p class="text-xs opacity-60 mt-2">{{ formatDate(lastSale()!.created_at) }}</p>
+      </div>
+
+      <!-- Lignes ticket -->
+      <div class="px-6 py-5">
+        <div class="space-y-2 mb-4">
+          @for (item of lastSale()!.items; track item.id) {
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-700 dark:text-slate-300">
+                {{ item.nom_produit }} × {{ item.quantite }}
+              </span>
+              <span class="font-semibold text-slate-900 dark:text-slate-100">
+                {{ formatPrice(item.montant) }}
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="border-t border-dashed border-slate-300 dark:border-slate-700 pt-3 space-y-1.5">
+          @if (lastSale()!.remise_montant > 0) {
+            <div class="flex justify-between text-sm text-emerald-600">
+              <span>Remise</span>
+              <span>−{{ formatPrice(lastSale()!.remise_montant) }}</span>
+            </div>
+          }
+          @if (lastSale()!.tva_montant > 0) {
+            <div class="flex justify-between text-sm text-slate-500">
+              <span>TVA</span>
+              <span>{{ formatPrice(lastSale()!.tva_montant) }}</span>
+            </div>
+          }
+          <div class="flex justify-between text-base font-bold text-slate-900 dark:text-white">
+            <span>TOTAL</span>
+            <span>{{ formatPrice(lastSale()!.montant_total) }}</span>
+          </div>
+          <div class="flex justify-between text-sm text-slate-500">
+            <span>{{ paymentLabel(lastSale()!.mode_paiement) }}</span>
+            <span>{{ formatPrice(lastSale()!.montant_recu) }}</span>
+          </div>
+          @if (lastSale()!.monnaie_rendue > 0) {
+            <div class="flex justify-between text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>Monnaie rendue</span>
+              <span>{{ formatPrice(lastSale()!.monnaie_rendue) }}</span>
+            </div>
+          }
+        </div>
+
+        <p class="text-center text-xs text-slate-400 mt-5">Merci pour votre achat ! 🙏</p>
+      </div>
+
+      <!-- Boutons ticket -->
+      <div class="flex gap-3 px-6 pb-6">
+        <button (click)="printReceipt()"
+                class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          Imprimer
+        </button>
+        <button (click)="closeReceipt()"
+                class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 transition-all">
+          Nouvelle vente
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ══════════════════════════════════════════════════════
+     MODAL — Historique des ventes
+══════════════════════════════════════════════════════ -->
+@if (showHistory()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-3xl shadow-2xl overflow-hidden max-h-[80vh] flex flex-col">
+
+      <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-700 shrink-0">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Historique des ventes</h2>
+        <button (click)="closeHistory()" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 transition-colors">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="overflow-y-auto flex-1 px-6 py-4">
+        @if (loadingHistory()) {
+          <div class="flex justify-center py-10">
+            <svg class="w-7 h-7 animate-spin text-indigo-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+          </div>
+        } @else if (history().length === 0) {
+          <div class="text-center py-10">
+            <span class="text-4xl">🧾</span>
+            <p class="text-slate-400 text-sm mt-3">Aucune vente enregistrée</p>
+          </div>
+        } @else {
+          <div class="space-y-2">
+            @for (sale of history(); track sale.id) {
+              <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-700">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                      {{ formatPrice(sale.montant_total) }}
+                    </p>
+                    <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(sale.created_at) }}</p>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full text-xs font-medium"
+                        [ngClass]="{
+                          'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300': sale.mode_paiement === 'especes',
+                          'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300':    sale.mode_paiement === 'orange_money',
+                          'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300':            sale.mode_paiement === 'moov_money'
+                        }">
+                    {{ paymentLabel(sale.mode_paiement) }}
+                  </span>
+                </div>
+                <div class="mt-2 flex flex-wrap gap-1">
+                  @for (item of sale.items; track item.id) {
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300">
+                      {{ item.nom_produit }} ×{{ item.quantite }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
