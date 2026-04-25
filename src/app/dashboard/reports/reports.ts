@@ -9,6 +9,7 @@ import {
 } from 'lucide-angular';
 import { ReportService } from './report.service';
 import { ShopService } from '../../shop/shop.service';
+import { Download } from 'lucide-angular';
 import {
   ReportKpis, CaDay, CaMonth, TopProduct, PaymentBreakdown, RecentSale, ReportPeriod,
 } from './report.model';
@@ -39,7 +40,7 @@ export class ReportsComponent implements OnInit {
 
   readonly Math = Math;
 
-  readonly icons = { RefreshCw, TrendingUp, BarChart2, Receipt, Trophy, CreditCard, Banknote, Smartphone, ShoppingCart };
+  readonly icons = { RefreshCw, TrendingUp, BarChart2, Receipt, Trophy, CreditCard, Banknote, Smartphone, ShoppingCart, Download };
 
   readonly chartData = computed(() =>
     this.chartView() === 'day' ? this.caByDay() : this.caByMonth()
@@ -127,4 +128,68 @@ export class ReportsComponent implements OnInit {
   topProductMax = computed(() =>
     Math.max(...this.topProducts().map(p => p.total_qte), 1)
   );
+
+  exportPDF(): void {
+    const kpis     = this.kpis();
+    const devise   = this.devise();
+    const shopName = this.shopService.shop()?.nom ?? 'Yaahw';
+    const now      = new Date().toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    const fmt = (n: number) => n.toLocaleString('fr-FR') + ' ' + devise;
+
+    const topRows = this.topProducts().map(p =>
+      `<tr><td>${p.nom}</td><td style="text-align:right">${p.total_qte}</td><td style="text-align:right">${fmt(p.total_ca)}</td></tr>`
+    ).join('');
+
+    const payRows = this.payments().map(p =>
+      `<tr><td>${this.paymentLabel(p.mode_paiement)}</td><td style="text-align:right">${p.nb_transactions}</td><td style="text-align:right">${fmt(p.total_ca)}</td></tr>`
+    ).join('');
+
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>Rapport — ${shopName}</title>
+<style>
+  body{font-family:Arial,sans-serif;font-size:12px;color:#1e293b;margin:0;padding:24px}
+  h1{font-size:20px;margin:0 0 4px}
+  .subtitle{color:#64748b;margin:0 0 20px;font-size:11px}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+  .kpi{background:#f1f5f9;border-radius:8px;padding:12px}
+  .kpi-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+  .kpi-value{font-size:18px;font-weight:700;margin-top:4px}
+  table{width:100%;border-collapse:collapse;margin-bottom:24px}
+  th{background:#6366f1;color:#fff;padding:7px 10px;text-align:left;font-size:11px}
+  td{padding:6px 10px;border-bottom:1px solid #e2e8f0}
+  tr:nth-child(even) td{background:#f8fafc}
+  h2{font-size:14px;margin:0 0 8px;color:#4f46e5}
+  footer{margin-top:32px;font-size:10px;color:#94a3b8;text-align:center}
+  @media print{body{padding:0}}
+</style>
+</head><body>
+<h1>Rapport de performance</h1>
+<p class="subtitle">${shopName} · Généré le ${now}</p>
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi-label">CA du jour</div><div class="kpi-value">${fmt(kpis?.ca_jour ?? 0)}</div></div>
+  <div class="kpi"><div class="kpi-label">CA du mois</div><div class="kpi-value">${fmt(kpis?.ca_mois ?? 0)}</div></div>
+  <div class="kpi"><div class="kpi-label">Ventes (mois)</div><div class="kpi-value">${kpis?.nb_ventes_mois ?? 0}</div></div>
+  <div class="kpi"><div class="kpi-label">Panier moyen</div><div class="kpi-value">${fmt(kpis?.panier_moyen ?? 0)}</div></div>
+</div>
+
+<h2>Top produits</h2>
+<table><thead><tr><th>Produit</th><th>Qté vendue</th><th>CA</th></tr></thead>
+<tbody>${topRows || '<tr><td colspan="3" style="color:#94a3b8">Aucune donnée</td></tr>'}</tbody></table>
+
+<h2>Répartition des paiements</h2>
+<table><thead><tr><th>Mode</th><th>Transactions</th><th>CA</th></tr></thead>
+<tbody>${payRows || '<tr><td colspan="3" style="color:#94a3b8">Aucune donnée</td></tr>'}</tbody></table>
+
+<footer>Yaahw POS — Rapport confidentiel</footer>
+</body></html>`;
+
+    const win = window.open('', '_blank', 'width=900,height=700');
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); win.close(); }, 400);
+  }
 }

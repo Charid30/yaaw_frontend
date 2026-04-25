@@ -33,6 +33,7 @@ export class HistoryComponent implements OnInit {
   dateDebut     = signal('');
   dateFin       = signal('');
   modePaiement  = signal('');
+  searchQuery   = signal('');
 
   // Détail
   selectedSale  = signal<Sale | null>(null);
@@ -64,6 +65,7 @@ export class HistoryComponent implements OnInit {
       date_debut:    this.dateDebut()    || undefined,
       date_fin:      this.dateFin()      || undefined,
       mode_paiement: this.modePaiement() || undefined,
+      search:        this.searchQuery()  || undefined,
     }).subscribe({
       next: (res) => {
         this.sales.set(res.data);
@@ -80,6 +82,13 @@ export class HistoryComponent implements OnInit {
     this.modePaiement.set('');
     this.dateDebut.set('');
     this.dateFin.set('');
+    this.searchQuery.set('');
+    this.currentPage.set(1);
+    this.load();
+  }
+
+  onSearch(q: string): void {
+    this.searchQuery.set(q);
     this.currentPage.set(1);
     this.load();
   }

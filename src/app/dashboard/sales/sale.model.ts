@@ -53,6 +53,7 @@ export interface SaleFilters {
   date_fin?:      string;
   mode_paiement?: string;
   customer_id?:   string;
+  search?:        string;   // recherche libre : nom client ou produit
 }
 
 export const PAYMENT_METHODS: { key: PaymentMethod; label: string; icon: string; color: string }[] = [

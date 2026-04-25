@@ -1,11 +1,35 @@
 <div class="p-6 lg:p-8 text-slate-100">
 
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold text-white">Gérants</h1>
-    <p class="text-sm text-slate-400 mt-0.5">{{ total() }} gérant{{ total() > 1 ? 's' : '' }} inscrit{{ total() > 1 ? 's' : '' }}</p>
+  <!-- ── En-tête ──────────────────────────────────────────────── -->
+  <div class="mb-6 flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Gérants</h1>
+      <p class="text-sm text-slate-400 mt-0.5">{{ total() }} gérant{{ total() > 1 ? 's' : '' }} inscrit{{ total() > 1 ? 's' : '' }}</p>
+    </div>
+    <button (click)="openCreate()"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700
+                   text-sm font-semibold text-white transition-colors shrink-0">
+      <lucide-icon [img]="icons.UserPlus" [size]="16" />
+      Nouveau gérant
+    </button>
   </div>
 
-  <!-- Recherche -->
+  <!-- Toast succès -->
+  @if (successMsg()) {
+    <div class="mb-4 flex items-center gap-2.5 bg-emerald-950/40 border border-emerald-800/50 text-emerald-400 rounded-xl px-4 py-3 text-sm">
+      ✓ {{ successMsg() }}
+    </div>
+  }
+
+  <!-- Toast erreur -->
+  @if (errorMsg()) {
+    <div class="mb-4 flex items-center gap-2.5 bg-red-950/40 border border-red-800/50 text-red-400 rounded-xl px-4 py-3 text-sm cursor-pointer"
+         (click)="errorMsg.set('')">
+      ✕ {{ errorMsg() }}
+    </div>
+  }
+
+  <!-- ── Recherche ────────────────────────────────────────────── -->
   <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 mb-4">
     <div class="relative">
       <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-500">
@@ -18,7 +42,7 @@
     </div>
   </div>
 
-  <!-- Table -->
+  <!-- ── Table ─────────────────────────────────────────────────── -->
   <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
 
     @if (loading()) {
@@ -31,76 +55,86 @@
         <p class="font-medium">Aucun gérant trouvé</p>
       </div>
     } @else {
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-slate-800">
-            <th class="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Gérant</th>
-            <th class="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Boutique</th>
-            <th class="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Inscrit le</th>
-            <th class="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Dernière cnx</th>
-            <th class="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Statut</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (u of users(); track u.id) {
-            <tr class="border-b border-slate-800/60 hover:bg-slate-800/30 transition-colors">
-
-              <!-- Gérant -->
-              <td class="px-5 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
-                       [ngClass]="u.is_active ? 'bg-violet-900/50 text-violet-300' : 'bg-slate-800 text-slate-500'">
-                    {{ initials(u.prenom, u.nom) }}
-                  </div>
-                  <div>
-                    <p class="font-semibold text-white">{{ u.prenom }} {{ u.nom }}</p>
-                    <p class="text-xs text-slate-500">{{ u.telephone }}</p>
-                  </div>
-                </div>
-              </td>
-
-              <!-- Boutique -->
-              <td class="px-5 py-4 hidden sm:table-cell">
-                @if (u.shop) {
-                  <p class="text-slate-200">{{ u.shop.nom }}</p>
-                  <p class="text-xs text-slate-500 capitalize">{{ u.shop.type_commerce }}</p>
-                } @else {
-                  <span class="text-xs text-amber-400 bg-amber-900/30 px-2 py-0.5 rounded-md">Sans boutique</span>
-                }
-              </td>
-
-              <!-- Inscrit le -->
-              <td class="px-5 py-4 hidden lg:table-cell text-xs text-slate-500">
-                {{ formatDate(u.created_at) }}
-              </td>
-
-              <!-- Dernière connexion -->
-              <td class="px-5 py-4 hidden lg:table-cell text-xs text-slate-500">
-                {{ formatDate(u.last_login) }}
-              </td>
-
-              <!-- Statut + toggle -->
-              <td class="px-5 py-4 text-center">
-                <button (click)="askToggle(u)"
-                        [disabled]="togglingId() === u.id"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-40"
-                        [ngClass]="u.is_active
-                          ? 'bg-emerald-900/30 text-emerald-400 hover:bg-red-900/30 hover:text-red-400'
-                          : 'bg-slate-800 text-slate-500 hover:bg-emerald-900/30 hover:text-emerald-400'">
-                  @if (u.is_active) {
-                    <lucide-icon [img]="icons.UserCheck" [size]="12" />
-                    Actif
-                  } @else {
-                    <lucide-icon [img]="icons.UserX" [size]="12" />
-                    Inactif
-                  }
-                </button>
-              </td>
-
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-800">
+              <th class="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Gérant</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden sm:table-cell">Boutique</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Inscrit le</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden lg:table-cell">Dernière cnx</th>
+              <th class="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Statut</th>
+              <th class="px-5 py-3"></th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (u of users(); track u.id) {
+              <tr class="border-b border-slate-800/60 hover:bg-slate-800/30 transition-colors">
+
+                <!-- Gérant -->
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
+                         [ngClass]="u.is_active ? 'bg-violet-900/50 text-violet-300' : 'bg-slate-800 text-slate-500'">
+                      {{ initials(u.prenom, u.nom) }}
+                    </div>
+                    <div>
+                      <p class="font-semibold text-white">{{ u.prenom }} {{ u.nom }}</p>
+                      <p class="text-xs text-slate-500">{{ u.telephone }}</p>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Boutique -->
+                <td class="px-5 py-4 hidden sm:table-cell">
+                  @if (u.shop) {
+                    <p class="text-slate-200">{{ u.shop.nom }}</p>
+                    <p class="text-xs text-slate-500 capitalize">{{ u.shop.type_commerce }}</p>
+                  } @else {
+                    <span class="text-xs text-amber-400 bg-amber-900/30 px-2 py-0.5 rounded-md">Sans boutique</span>
+                  }
+                </td>
+
+                <!-- Inscrit le -->
+                <td class="px-5 py-4 hidden lg:table-cell text-xs text-slate-500">{{ formatDate(u.created_at) }}</td>
+
+                <!-- Dernière connexion -->
+                <td class="px-5 py-4 hidden lg:table-cell text-xs text-slate-500">{{ formatDate(u.last_login) }}</td>
+
+                <!-- Statut + toggle -->
+                <td class="px-5 py-4 text-center">
+                  <button (click)="askToggle(u)"
+                          [disabled]="togglingId() === u.id"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-40"
+                          [ngClass]="u.is_active
+                            ? 'bg-emerald-900/30 text-emerald-400 hover:bg-red-900/30 hover:text-red-400'
+                            : 'bg-slate-800 text-slate-500 hover:bg-emerald-900/30 hover:text-emerald-400'">
+                    @if (u.is_active) {
+                      <lucide-icon [img]="icons.UserCheck" [size]="12" />
+                      Actif
+                    } @else {
+                      <lucide-icon [img]="icons.UserX" [size]="12" />
+                      Inactif
+                    }
+                  </button>
+                </td>
+
+                <!-- Supprimer -->
+                <td class="px-4 py-4 text-center">
+                  <button (click)="askDelete(u)"
+                          [disabled]="deletingId() === u.id"
+                          class="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-900/20
+                                 transition-colors disabled:opacity-40"
+                          title="Supprimer ce gérant">
+                    <lucide-icon [img]="icons.Trash2" [size]="15" />
+                  </button>
+                </td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
       <!-- Pagination -->
       @if (totalPages() > 1) {
@@ -123,7 +157,87 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════════
-     MODAL confirmation toggle actif/inactif
+     MODAL — Créer un gérant
+     ════════════════════════════════════════════════════════════ -->
+@if (showCreateModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closeCreate()"></div>
+
+    <div class="relative bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-md p-6">
+
+      <h3 class="text-lg font-bold text-white mb-5">Nouveau gérant</h3>
+
+      @if (createError()) {
+        <div class="mb-4 rounded-xl bg-red-950/40 border border-red-800/50 text-red-400 px-4 py-3 text-sm">
+          {{ createError() }}
+        </div>
+      }
+
+      <div class="space-y-4">
+
+        <!-- Nom + Prénom -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">Nom</label>
+            <input type="text" [(ngModel)]="createForm.nom" placeholder="BATIONO"
+                   class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3.5 py-2.5 text-sm
+                          text-white placeholder:text-slate-600 focus:outline-none focus:border-violet-500
+                          focus:ring-1 focus:ring-violet-500/30 transition" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">Prénom</label>
+            <input type="text" [(ngModel)]="createForm.prenom" placeholder="Ulrich"
+                   class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3.5 py-2.5 text-sm
+                          text-white placeholder:text-slate-600 focus:outline-none focus:border-violet-500
+                          focus:ring-1 focus:ring-violet-500/30 transition" />
+          </div>
+        </div>
+
+        <!-- Téléphone -->
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Téléphone</label>
+          <input type="tel" [(ngModel)]="createForm.telephone" placeholder="+226 70 00 00 00"
+                 class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3.5 py-2.5 text-sm
+                        text-white placeholder:text-slate-600 focus:outline-none focus:border-violet-500
+                        focus:ring-1 focus:ring-violet-500/30 transition" />
+        </div>
+
+        <!-- Mot de passe -->
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Mot de passe provisoire</label>
+          <input type="text" [(ngModel)]="createForm.password" placeholder="Min. 6 caractères"
+                 class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3.5 py-2.5 text-sm
+                        text-white placeholder:text-slate-600 font-mono focus:outline-none focus:border-violet-500
+                        focus:ring-1 focus:ring-violet-500/30 transition" />
+          <p class="mt-1.5 text-xs text-slate-600">Le gérant pourra le modifier dans ses paramètres.</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-3 mt-6">
+        <button (click)="closeCreate()" [disabled]="creating()"
+                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400
+                       border border-slate-700 hover:bg-slate-800 transition-colors disabled:opacity-40">
+          Annuler
+        </button>
+        <button (click)="submitCreate()" [disabled]="creating()"
+                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white
+                       bg-violet-600 hover:bg-violet-700 transition-colors disabled:opacity-60
+                       flex items-center justify-center gap-2">
+          @if (creating()) {
+            <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin block"></span>
+            Création…
+          } @else {
+            Créer le gérant
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ════════════════════════════════════════════════════════════
+     MODAL — Confirmer toggle actif/inactif
      ════════════════════════════════════════════════════════════ -->
 @if (confirmTarget(); as u) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -131,7 +245,6 @@
 
     <div class="relative bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
 
-      <!-- Icône -->
       <div class="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center"
            [ngClass]="u.is_active ? 'bg-red-900/40' : 'bg-emerald-900/40'">
         @if (u.is_active) {
@@ -141,7 +254,6 @@
         }
       </div>
 
-      <!-- Texte -->
       <h3 class="text-base font-bold text-white mb-1">
         {{ u.is_active ? 'Désactiver ce compte ?' : 'Activer ce compte ?' }}
       </h3>
@@ -150,7 +262,6 @@
         {{ u.is_active ? 'Ce gérant ne pourra plus se connecter.' : 'Ce gérant pourra à nouveau se connecter.' }}
       </p>
 
-      <!-- Actions -->
       <div class="flex gap-3">
         <button (click)="cancelToggle()"
                 class="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400
@@ -163,6 +274,41 @@
                   ? 'bg-red-600 hover:bg-red-700 text-white'
                   : 'bg-emerald-600 hover:bg-emerald-700 text-white'">
           {{ u.is_active ? 'Désactiver' : 'Activer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ════════════════════════════════════════════════════════════
+     MODAL — Confirmer suppression gérant
+     ════════════════════════════════════════════════════════════ -->
+@if (deleteTarget(); as u) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="cancelDelete()"></div>
+
+    <div class="relative bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+
+      <div class="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center bg-red-900/40">
+        <lucide-icon [img]="icons.Trash2" [size]="26" class="text-red-400" />
+      </div>
+
+      <h3 class="text-base font-bold text-white mb-1">Supprimer ce gérant ?</h3>
+      <p class="text-sm text-slate-400 mb-1">{{ u.prenom }} {{ u.nom }}</p>
+      <p class="text-xs text-slate-500 mb-6">
+        Cette action est irréversible. La boutique associée ne sera pas supprimée.
+      </p>
+
+      <div class="flex gap-3">
+        <button (click)="cancelDelete()"
+                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400
+                       border border-slate-700 hover:bg-slate-800 transition-colors">
+          Annuler
+        </button>
+        <button (click)="confirmDelete()"
+                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-red-600
+                       hover:bg-red-700 text-white transition-colors">
+          Supprimer
         </button>
       </div>
     </div>

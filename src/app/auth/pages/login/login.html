@@ -89,6 +89,19 @@
         </p>
       </div>
 
+      <!-- Session expirée -->
+      @if (sessionExpired()) {
+        <div class="mb-5 flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50
+                    dark:border-amber-700/50 dark:bg-amber-900/20 px-4 py-3">
+          <svg class="size-4 shrink-0 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+          </svg>
+          <p class="text-sm text-amber-700 dark:text-amber-400">
+            Votre session a expiré. Veuillez vous reconnecter.
+          </p>
+        </div>
+      }
+
       <!-- Erreur globale -->
       @if (errorMsg()) {
         <div class="mb-5 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50

@@ -23,9 +23,10 @@ export class AuthService {
 
   readonly user = this._user.asReadonly();
   readonly token = this._token.asReadonly();
-  readonly isLoggedIn = computed(() => !!this._token());
-  readonly isAdmin = computed(() => this._user()?.role === 'ADMIN');
-  readonly isGerant = computed(() => this._user()?.role === 'GERANT');
+  readonly isLoggedIn  = computed(() => !!this._token());
+  readonly isAdmin     = computed(() => this._user()?.role === 'ADMIN');
+  readonly isGerant    = computed(() => this._user()?.role === 'GERANT');
+  readonly isCaissier  = computed(() => this._user()?.role === 'CAISSIER');
 
   constructor(private http: HttpClient, private router: Router) {}
 

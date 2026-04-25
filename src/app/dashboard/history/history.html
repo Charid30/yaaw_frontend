@@ -10,7 +10,20 @@
   </div>
 
   <!-- Filtres -->
-  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 mb-4">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 mb-4 space-y-3">
+
+    <!-- Barre de recherche libre -->
+    <div class="relative">
+      <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+        <lucide-icon [img]="icons.Search" [size]="16" />
+      </span>
+      <input type="search" placeholder="Rechercher par produit ou client…"
+             class="search-input"
+             [value]="searchQuery()"
+             (input)="onSearch($any($event.target).value)" />
+    </div>
+
+    <!-- Filtres date + paiement -->
     <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_180px_auto] gap-3 items-end">
 
       <!-- Date début -->

@@ -18,6 +18,7 @@ interface NavItem {
   exact:   boolean;
   icon:    LucideIconData;
   module?: keyof ShopModules;
+  roles?:  string[];   // si absent → visible par tous les rôles
 }
 
 @Component({
@@ -60,23 +61,30 @@ export class DashboardLayoutComponent implements OnInit {
   readonly icons = { X, Menu, LogOut };
 
   readonly navItems: NavItem[] = [
-    { path: '/dashboard',           label: 'Tableau de bord', exact: true,  icon: LayoutDashboard },
-    { path: '/dashboard/products',  label: 'Produits',        exact: false, icon: Package         },
+    // GÉRANT uniquement
+    { path: '/dashboard',           label: 'Tableau de bord', exact: true,  icon: LayoutDashboard, roles: ['GERANT'] },
+    { path: '/dashboard/products',  label: 'Produits',        exact: false, icon: Package,         roles: ['GERANT'] },
+    // GÉRANT + CAISSIER
     { path: '/dashboard/sales',     label: 'Caisse',          exact: false, icon: ShoppingCart    },
     { path: '/dashboard/history',   label: 'Historique',      exact: false, icon: History         },
-    { path: '/dashboard/stock',     label: 'Stock',           exact: false, icon: Archive,         module: 'stock'    },
-    { path: '/dashboard/reports',   label: 'Rapports',        exact: false, icon: BarChart2,       module: 'rapports' },
-    { path: '/dashboard/customers', label: 'Clients',         exact: false, icon: Users            },
-    { path: '/dashboard/suppliers', label: 'Fournisseurs',    exact: false, icon: Truck            },
-    { path: '/dashboard/employees', label: 'Employés',        exact: false, icon: UserCog          },
-    { path: '/dashboard/settings',  label: 'Paramètres',      exact: false, icon: Settings         },
+    // GÉRANT uniquement (avec gating module)
+    { path: '/dashboard/stock',     label: 'Stock',           exact: false, icon: Archive,         module: 'stock',    roles: ['GERANT'] },
+    { path: '/dashboard/reports',   label: 'Rapports',        exact: false, icon: BarChart2,       module: 'rapports', roles: ['GERANT'] },
+    { path: '/dashboard/customers', label: 'Clients',         exact: false, icon: Users,           roles: ['GERANT'] },
+    { path: '/dashboard/suppliers', label: 'Fournisseurs',    exact: false, icon: Truck,           roles: ['GERANT'] },
+    { path: '/dashboard/employees', label: 'Employés',        exact: false, icon: UserCog,         roles: ['GERANT'] },
+    { path: '/dashboard/settings',  label: 'Paramètres',      exact: false, icon: Settings,        roles: ['GERANT'] },
   ];
 
   readonly visibleNavItems = computed(() => {
     const modules = this.shopService.shop()?.modules;
+    const role    = this.auth.user()?.role ?? 'GERANT';
     return this.navItems.filter(item => {
-      if (!item.module) return true;
-      return modules ? !!modules[item.module as keyof ShopModules] : false;
+      // Filtre par rôle
+      if (item.roles && !item.roles.includes(role)) return false;
+      // Filtre par module activé
+      if (item.module) return modules ? !!modules[item.module as keyof ShopModules] : false;
+      return true;
     });
   });
 

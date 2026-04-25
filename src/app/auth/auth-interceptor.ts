@@ -15,11 +15,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((err: HttpErrorResponse) => {
-      // Rediriger vers login si 401 (token expiré / invalide)
       if (err.status === 401) {
+        // Purger la session locale
         localStorage.removeItem('yaahw_token');
         localStorage.removeItem('yaahw_user');
-        router.navigate(['/auth/login']);
+        localStorage.removeItem('yaahw_shop');
+        // Rediriger vers login avec un flag pour afficher le message de session expirée
+        const currentUrl = router.url;
+        const isAuthRoute = currentUrl.startsWith('/auth');
+        if (!isAuthRoute) {
+          router.navigate(['/auth/login'], { queryParams: { expired: '1' } });
+        }
       }
       return throwError(() => err);
     })

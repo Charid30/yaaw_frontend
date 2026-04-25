@@ -29,6 +29,7 @@ export class SaleService {
     if (filters.date_fin)      params = params.set('date_fin',      filters.date_fin);
     if (filters.mode_paiement) params = params.set('mode_paiement', filters.mode_paiement);
     if (filters.customer_id)   params = params.set('customer_id',   filters.customer_id);
+    if (filters.search)        params = params.set('search',        filters.search);
     return this.http.get<SalesResponse>(this.API, { params });
   }
 

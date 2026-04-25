@@ -1,7 +1,7 @@
 // src/app/auth/pages/login/login.ts
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../auth';
@@ -14,19 +14,30 @@ import { ShopService } from '../../../shop/shop.service';
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   telephone = '';
   password = '';
-  showPassword = signal(false);
-  loading = signal(false);
-  errorMsg = signal('');
+  showPassword  = signal(false);
+  loading       = signal(false);
+  errorMsg      = signal('');
+  sessionExpired = signal(false);
   readonly currentYear = new Date().getFullYear();
 
   constructor(
     private auth:        AuthService,
     private shopService: ShopService,
     private router:      Router,
+    private route:       ActivatedRoute,
   ) {}
+
+  ngOnInit(): void {
+    // Vérifier si redirigé depuis un 401 (session expirée)
+    this.route.queryParams.subscribe(params => {
+      if (params['expired'] === '1') {
+        this.sessionExpired.set(true);
+      }
+    });
+  }
 
   togglePassword(): void {
     this.showPassword.update((v) => !v);
@@ -48,7 +59,15 @@ export class LoginComponent {
           this.router.navigate(['/admin']);
           return;
         }
-        // GÉRANT / CAISSIER → vérifier si boutique configurée
+        // CAISSIER → dashboard direct (sa boutique est dans le token)
+        if (this.auth.isCaissier()) {
+          this.shopService.fetchMyShop().subscribe({
+            next:  () => this.router.navigate(['/dashboard/sales']),
+            error: () => this.router.navigate(['/dashboard/sales']),
+          });
+          return;
+        }
+        // GÉRANT → vérifier si boutique configurée
         this.shopService.fetchMyShop().subscribe({
           next:  () => this.router.navigate(['/dashboard']),
           error: (err: HttpErrorResponse) =>

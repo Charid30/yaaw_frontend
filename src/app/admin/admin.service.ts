@@ -89,6 +89,15 @@ export class AdminApiService {
     return this.http.patch<any>(`${this.API}/users/${id}/toggle`, {});
   }
 
+  createGerant(body: { nom: string; prenom: string; telephone: string; password: string }):
+    Observable<{ success: boolean; data: { user: AdminUser } }> {
+    return this.http.post<any>(`${this.API}/gerants`, body);
+  }
+
+  deleteGerant(id: string): Observable<{ success: boolean }> {
+    return this.http.delete<any>(`${this.API}/gerants/${id}`);
+  }
+
   getActivity(opts: { page?: number; limit?: number } = {}):
     Observable<{ success: boolean; data: { sales: AdminSaleSummary[]; pagination: Pagination } }> {
     let p = new HttpParams();

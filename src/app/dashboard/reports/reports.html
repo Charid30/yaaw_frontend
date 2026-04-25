@@ -20,6 +20,12 @@
         <lucide-icon [img]="icons.Receipt" [size]="14" />
         Imprimer
       </button>
+      <button (click)="exportPDF()"
+        class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700
+               text-sm font-semibold text-white transition shadow-sm">
+        <lucide-icon [img]="icons.Download" [size]="14" />
+        Exporter PDF
+      </button>
     </div>
   </div>
 
