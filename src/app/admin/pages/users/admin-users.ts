@@ -21,7 +21,8 @@ export class AdminUsersComponent implements OnInit {
   total       = signal(0);
   readonly limit = 20;
 
-  togglingId  = signal<string | null>(null);
+  togglingId    = signal<string | null>(null);
+  confirmTarget = signal<AdminUser | null>(null);   // utilisateur en attente de confirmation
 
   readonly icons = { Search, Users, ChevronLeft, ChevronRight, UserCheck, UserX };
 
@@ -54,9 +55,18 @@ export class AdminUsersComponent implements OnInit {
   prevPage(): void { if (this.currentPage() > 1) { this.currentPage.update(p => p - 1); this.load(); } }
   nextPage(): void { if (this.currentPage() < this.totalPages()) { this.currentPage.update(p => p + 1); this.load(); } }
 
-  toggle(user: AdminUser): void {
-    const action = user.is_active ? 'désactiver' : 'activer';
-    if (!confirm(`Voulez-vous ${action} le compte de ${user.prenom} ${user.nom} ?`)) return;
+  askToggle(user: AdminUser): void {
+    this.confirmTarget.set(user);
+  }
+
+  cancelToggle(): void {
+    this.confirmTarget.set(null);
+  }
+
+  confirmToggle(): void {
+    const user = this.confirmTarget();
+    if (!user) return;
+    this.confirmTarget.set(null);
     this.togglingId.set(user.id);
     this.adminApi.toggleUser(user.id).subscribe({
       next: (res) => {
