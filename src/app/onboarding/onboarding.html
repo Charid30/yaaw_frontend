@@ -64,7 +64,7 @@
               <button type="button"
                       (click)="selectType(type.key)"
                       [ngClass]="getTypeCardClass(type.key)">
-                <span class="text-4xl leading-none mb-2">{{ type.icon }}</span>
+                <lucide-icon [img]="type.icon" [size]="36" class="mb-2" />
                 <span class="font-semibold text-slate-800 dark:text-slate-100 text-sm">
                   {{ type.label }}
                 </span>
@@ -183,9 +183,9 @@
                    ? 'border-indigo-200 bg-indigo-50/60 dark:border-indigo-800/60 dark:bg-indigo-950/20'
                    : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/30'">
               <div class="flex items-center gap-4">
-                <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 transition-colors"
-                     [ngClass]="form.modules.stock ? 'bg-indigo-100 dark:bg-indigo-900/50' : 'bg-slate-100 dark:bg-slate-700'">
-                  📦
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors"
+                     [ngClass]="form.modules.stock ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'">
+                  <lucide-icon [img]="icons.Package" [size]="22" />
                 </div>
                 <div>
                   <p class="font-semibold text-sm text-slate-800 dark:text-slate-100">Gestion du stock</p>
@@ -207,9 +207,9 @@
                    ? 'border-indigo-200 bg-indigo-50/60 dark:border-indigo-800/60 dark:bg-indigo-950/20'
                    : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/30'">
               <div class="flex items-center gap-4">
-                <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 transition-colors"
-                     [ngClass]="form.modules.commandes ? 'bg-indigo-100 dark:bg-indigo-900/50' : 'bg-slate-100 dark:bg-slate-700'">
-                  🛒
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors"
+                     [ngClass]="form.modules.commandes ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'">
+                  <lucide-icon [img]="icons.ShoppingCart" [size]="22" />
                 </div>
                 <div>
                   <p class="font-semibold text-sm text-slate-800 dark:text-slate-100">Commandes</p>
@@ -231,9 +231,9 @@
                    ? 'border-indigo-200 bg-indigo-50/60 dark:border-indigo-800/60 dark:bg-indigo-950/20'
                    : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/30'">
               <div class="flex items-center gap-4">
-                <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 transition-colors"
-                     [ngClass]="form.modules.rapports ? 'bg-indigo-100 dark:bg-indigo-900/50' : 'bg-slate-100 dark:bg-slate-700'">
-                  📊
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors"
+                     [ngClass]="form.modules.rapports ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'">
+                  <lucide-icon [img]="icons.BarChart2" [size]="22" />
                 </div>
                 <div>
                   <p class="font-semibold text-sm text-slate-800 dark:text-slate-100">Rapports & statistiques</p>
@@ -256,8 +256,8 @@
       @if (currentStep() === 4) {
         <div class="animate-fade-in">
           <div class="flex items-center gap-3 mb-2">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-2xl shadow-md shadow-indigo-200 dark:shadow-indigo-900 shrink-0">
-              🎉
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-200 dark:shadow-indigo-900 shrink-0 text-white">
+              <lucide-icon [img]="icons.CheckCircle" [size]="26" />
             </div>
             <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Tout est prêt !</h1>
           </div>
@@ -270,7 +270,9 @@
             <div class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-200 dark:border-slate-700">
               <span class="text-sm text-slate-500 dark:text-slate-400">Type de commerce</span>
               <div class="flex items-center gap-2">
-                <span class="text-lg">{{ selectedTypeOption()?.icon }}</span>
+                @if (selectedTypeOption()?.icon) {
+                  <lucide-icon [img]="selectedTypeOption()!.icon" [size]="16" class="text-slate-600 dark:text-slate-300" />
+                }
                 <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">
                   {{ selectedTypeOption()?.label }}
                 </span>
@@ -301,18 +303,21 @@
               <p class="text-sm text-slate-500 dark:text-slate-400 mb-2.5">Modules activés</p>
               <div class="flex flex-wrap gap-2">
                 @if (form.modules.stock) {
-                  <span class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium dark:bg-indigo-900/40 dark:text-indigo-300">
-                    📦 Stock
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium dark:bg-indigo-900/40 dark:text-indigo-300">
+                    <lucide-icon [img]="icons.Package" [size]="11" />
+                    Stock
                   </span>
                 }
                 @if (form.modules.commandes) {
-                  <span class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium dark:bg-indigo-900/40 dark:text-indigo-300">
-                    🛒 Commandes
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium dark:bg-indigo-900/40 dark:text-indigo-300">
+                    <lucide-icon [img]="icons.ShoppingCart" [size]="11" />
+                    Commandes
                   </span>
                 }
                 @if (form.modules.rapports) {
-                  <span class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium dark:bg-indigo-900/40 dark:text-indigo-300">
-                    📊 Rapports
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium dark:bg-indigo-900/40 dark:text-indigo-300">
+                    <lucide-icon [img]="icons.BarChart2" [size]="11" />
+                    Rapports
                   </span>
                 }
                 @if (!form.modules.stock && !form.modules.commandes && !form.modules.rapports) {
@@ -374,7 +379,8 @@
               </svg>
               Configuration en cours…
             } @else {
-              🚀 Lancer mon espace
+              <lucide-icon [img]="icons.Zap" [size]="16" />
+              Lancer mon espace
             }
           </button>
         }

@@ -6,6 +6,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   LucideAngularModule,
   Store, KeyRound, User, ShieldAlert, Save, Pencil, X, Eye, EyeOff,
+  CheckCircle, AlertCircle, Layers, Archive, BarChart2,
 } from 'lucide-angular';
 import { AuthService } from '../../auth/auth';
 import { ShopService } from '../../shop/shop.service';
@@ -26,7 +27,7 @@ export class SettingsComponent implements OnInit {
   readonly user = this.auth.user;
   readonly shop = this.shopService.shop;
 
-  readonly icons = { Store, KeyRound, User, ShieldAlert, Save, Pencil, X, Eye, EyeOff };
+  readonly icons = { CheckCircle, AlertCircle, Store, KeyRound, User, ShieldAlert, Save, Pencil, X, Eye, EyeOff, Layers, Archive, BarChart2 };
 
   // ── Section Boutique ──────────────────────────────────────────
   editingShop  = signal(false);
@@ -41,6 +42,15 @@ export class SettingsComponent implements OnInit {
   };
 
   readonly DEVISES = ['FCFA', 'XOF', 'XAF', 'GNF', 'EUR', 'USD', 'MAD', 'DZD'];
+
+  // ── Section Modules ───────────────────────────────────────────
+  savingModules  = signal(false);
+  modulesSuccess = signal('');
+  modulesError   = signal('');
+  modulesForm = {
+    stock:    false,
+    rapports: false,
+  };
 
   // ── Section Mot de passe ──────────────────────────────────────
   savingPwd   = signal(false);
@@ -63,6 +73,10 @@ export class SettingsComponent implements OnInit {
         devise:      s.devise,
         tva_enabled: s.tva_enabled,
         tva_rate:    s.tva_rate ?? 18,
+      };
+      this.modulesForm = {
+        stock:    s.modules?.stock    ?? false,
+        rapports: s.modules?.rapports ?? false,
       };
     }
   }
@@ -102,6 +116,31 @@ export class SettingsComponent implements OnInit {
       error: (err: HttpErrorResponse) => {
         this.shopError.set(err.error?.message || 'Une erreur est survenue.');
         this.savingShop.set(false);
+      },
+    });
+  }
+
+  // ── Modules ───────────────────────────────────────────────────
+
+  saveModules(): void {
+    this.savingModules.set(true);
+    this.modulesError.set('');
+    const current = this.shop()?.modules;
+    this.shopService.updateShop({
+      modules: {
+        stock:     this.modulesForm.stock,
+        rapports:  this.modulesForm.rapports,
+        commandes: current?.commandes ?? false,
+      },
+    }).subscribe({
+      next: () => {
+        this.savingModules.set(false);
+        this.modulesSuccess.set('Fonctionnalités mises à jour.');
+        setTimeout(() => this.modulesSuccess.set(''), 3500);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.modulesError.set(err.error?.message || 'Une erreur est survenue.');
+        this.savingModules.set(false);
       },
     });
   }

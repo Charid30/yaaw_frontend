@@ -3,11 +3,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  LucideAngularModule,
-  Users, UserPlus, Search, Pencil, Trash2, X,
-  ChevronLeft, ChevronRight, Phone, Mail, StickyNote,
-} from 'lucide-angular';
+import { LucideAngularModule, Users, UserPlus, Search, Pencil, Trash2, X, ChevronLeft, ChevronRight, Phone, Mail, StickyNote, CheckCircle, AlertCircle } from 'lucide-angular';
 import { CustomerService } from './customer.service';
 import { Customer, CustomerFormData } from './customer.model';
 
@@ -42,7 +38,7 @@ export class CustomersComponent implements OnInit {
   successMsg = signal('');
 
   readonly icons = {
-    Users, UserPlus, Search, Pencil, Trash2, X,
+    CheckCircle, AlertCircle, Users, UserPlus, Search, Pencil, Trash2, X,
     ChevronLeft, ChevronRight, Phone, Mail, StickyNote,
   };
 

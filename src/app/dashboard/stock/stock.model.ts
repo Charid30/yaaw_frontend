@@ -49,9 +49,9 @@ export interface MovementForm {
   motif:      string;
 }
 
-export const MOVEMENT_TYPES: { key: MovementType; label: string; icon: string; color: string }[] = [
-  { key: 'entree',     label: 'Entrée',      icon: '➕', color: 'emerald' },
-  { key: 'sortie',     label: 'Sortie',      icon: '➖', color: 'red'     },
-  { key: 'ajustement', label: 'Ajustement',  icon: '⚖️',  color: 'amber'   },
-  { key: 'vente',      label: 'Vente caisse',icon: '🛒', color: 'blue'    },
+export const MOVEMENT_TYPES: { key: MovementType; label: string; color: string }[] = [
+  { key: 'entree',     label: 'Entrée',       color: 'emerald' },
+  { key: 'sortie',     label: 'Sortie',       color: 'red'     },
+  { key: 'ajustement', label: 'Ajustement',   color: 'amber'   },
+  { key: 'vente',      label: 'Vente caisse', color: 'blue'    },
 ];

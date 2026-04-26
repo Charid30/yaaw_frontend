@@ -6,8 +6,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   LucideAngularModule,
   Search, ShoppingCart, Trash2, Plus, Minus, X,
-  Printer, History, Check, Banknote, Smartphone, CreditCard,
+  Printer, History, Check, Banknote, Smartphone, CreditCard, Package, Receipt, User,
 } from 'lucide-angular';
+import { buildReceiptHtml, printInFrame } from './receipt.util';
 import { ProductService } from '../products/product.service';
 import { SaleService } from './sale.service';
 import { ShopService } from '../../shop/shop.service';
@@ -57,8 +58,9 @@ export class SalesComponent implements OnInit {
   showCustomerDrop = signal(false);
 
   // ── Ticket ────────────────────────────────────────────────
-  showReceipt  = signal(false);
-  lastSale     = signal<Sale | null>(null);
+  showReceipt       = signal(false);
+  lastSale          = signal<Sale | null>(null);
+  receiptCustomer   = signal<{ id: string; nom: string } | null>(null); // capturé avant clearCart
 
   // ── Historique ────────────────────────────────────────────
   showHistory  = signal(false);
@@ -68,7 +70,7 @@ export class SalesComponent implements OnInit {
   readonly paymentMethods = PAYMENT_METHODS;
   readonly shop = this.shopService.shop;
 
-  readonly icons = { Search, ShoppingCart, Trash2, Plus, Minus, X, Printer, History, Check, Banknote, Smartphone, CreditCard };
+  readonly icons = { Search, ShoppingCart, Trash2, Plus, Minus, X, Printer, History, Check, Banknote, Smartphone, CreditCard, Package, Receipt, User };
 
 
   // ── Computed ─────────────────────────────────────────────
@@ -211,6 +213,8 @@ export class SalesComponent implements OnInit {
     this.note.set('');
     this.errorMsg.set('');
     this.selectedCustomer.set(null);
+    this.customerSearch.set('');
+    this.showCustomerDrop.set(false);
     this.discountValue.set(0);
   }
 
@@ -233,12 +237,30 @@ export class SalesComponent implements OnInit {
         : this.grandTotal(),
       note:           this.note()                     || undefined,
       customer_id:    this.selectedCustomer()?.id     ?? null,
+      customer_nom:   !this.selectedCustomer() && this.customerSearch().trim()
+                        ? this.customerSearch().trim()
+                        : null,
       remise_montant: this.discountAmount() || undefined,
     };
 
+    // Capturer le client AVANT clearCart() qui le réinitialise.
+    // Priorité : client sélectionné dans le dropdown, sinon texte libre tapé.
+    const freeText = this.customerSearch().trim();
+    const customerSnapshot = this.selectedCustomer()
+      ? { id: this.selectedCustomer()!.id, nom: this.selectedCustomer()!.nom }
+      : freeText
+        ? { id: '', nom: freeText }
+        : null;
+
     this.saleService.createSale(payload).subscribe({
       next: (res) => {
-        this.lastSale.set(res.data.sale);
+        const sale = res.data.sale;
+        // Fallback : si l'API ne renvoie pas customer, utiliser le snapshot local
+        if (!sale.customer && customerSnapshot) {
+          sale.customer = customerSnapshot;
+        }
+        this.lastSale.set(sale);
+        this.receiptCustomer.set(sale.customer ?? customerSnapshot);
         this.processing.set(false);
         this.clearCart();
         this.loadCatalog(); // rafraîchir le stock
@@ -255,10 +277,20 @@ export class SalesComponent implements OnInit {
 
   closeReceipt(): void {
     this.showReceipt.set(false);
+    this.receiptCustomer.set(null);
   }
 
   printReceipt(): void {
-    window.print();
+    const sale = this.lastSale();
+    const shop = this.shop();
+    if (!sale) return;
+    printInFrame(buildReceiptHtml({
+      sale,
+      shopNom:     shop?.nom        ?? 'YAAHW',
+      shopType:    shop?.type_commerce ?? '',
+      devise:      this.devise(),
+      customerNom: this.receiptCustomer()?.nom ?? null,
+    }));
   }
 
   // ── Historique ────────────────────────────────────────────

@@ -1,7 +1,7 @@
 // src/app/admin/pages/activity/admin-activity.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Activity, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-angular';
+import { LucideAngularModule, Activity, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Banknote } from 'lucide-angular';
 import { AdminApiService, AdminSaleSummary } from '../../admin.service';
 
 @Component({
@@ -20,12 +20,12 @@ export class AdminActivityComponent implements OnInit {
   expandedId  = signal<string | null>(null);
   readonly limit = 30;
 
-  readonly icons = { Activity, ChevronLeft, ChevronRight, ChevronDown, ChevronUp };
+  readonly icons = { Activity, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Banknote };
 
   readonly MODE_LABELS: Partial<Record<string, string>> = {
-    especes:      '💵 Espèces',
-    orange_money: '🟠 Orange Money',
-    moov_money:   '🔵 Moov Money',
+    especes:      'Espèces',
+    orange_money: 'Orange Money',
+    moov_money:   'Moov Money',
   };
 
   constructor(private adminApi: AdminApiService) {}

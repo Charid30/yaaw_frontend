@@ -8,8 +8,59 @@
          dark:border-slate-700 dark:bg-slate-800/50 dark:text-white dark:focus:bg-slate-800;
 }
 
-/* Impression du ticket */
+/* Impression du ticket — format papier thermique 80mm */
 @media print {
+  @page {
+    size: 80mm auto;   /* largeur fixe 80mm, hauteur automatique selon le contenu */
+    margin: 4mm;
+  }
+
+  /* Masquer tout sauf le ticket */
   body > * { display: none !important; }
-  .print-ticket { display: block !important; }
+
+  /* Réinitialiser le positionnement pour l'impression */
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  /* Afficher uniquement le ticket */
+  .print-ticket {
+    display: block !important;
+    position: static !important;
+    width: 72mm !important;       /* 80mm - 2×4mm marges */
+    max-width: 72mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    font-size: 11px !important;
+    color: #000 !important;
+    background: white !important;
+
+    /* En-tête */
+    .bg-gradient-to-br {
+      background: #000 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      padding: 8px !important;
+    }
+
+    /* Textes */
+    p, span, div { color: #000 !important; }
+
+    /* Total en gras */
+    .font-bold { font-weight: 700 !important; }
+
+    /* Cacher les boutons Imprimer / Nouvelle vente */
+    .flex.gap-3.px-6.pb-6 { display: none !important; }
+
+    /* Ligne de séparation */
+    .border-dashed { border-color: #000 !important; }
+  }
+
+  /* Masquer le fond semi-transparent de la modal */
+  .fixed.inset-0.bg-black\/60,
+  .backdrop-blur-sm { background: transparent !important; backdrop-filter: none !important; }
 }

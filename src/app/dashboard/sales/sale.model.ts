@@ -20,6 +20,7 @@ export interface Sale {
   shop_id:        string;
   caissier_id:    string;
   customer_id:    string | null;
+  customer_nom:   string | null;
   customer:       SaleCustomer | null;
   remise_montant: number;
   montant_total:  number;
@@ -43,6 +44,7 @@ export interface CreateSalePayload {
   montant_recu:    number;
   note?:           string;
   customer_id?:    string | null;
+  customer_nom?:   string | null;
   remise_montant?: number;
 }
 
@@ -56,8 +58,8 @@ export interface SaleFilters {
   search?:        string;   // recherche libre : nom client ou produit
 }
 
-export const PAYMENT_METHODS: { key: PaymentMethod; label: string; icon: string; color: string }[] = [
-  { key: 'especes',      label: 'Espèces',      icon: '💵', color: 'emerald' },
-  { key: 'orange_money', label: 'Orange Money', icon: '🟠', color: 'orange'  },
-  { key: 'moov_money',   label: 'Moov Money',   icon: '🔵', color: 'blue'    },
+export const PAYMENT_METHODS: { key: PaymentMethod; label: string; color: string }[] = [
+  { key: 'especes',      label: 'Espèces',      color: 'emerald' },
+  { key: 'orange_money', label: 'Orange Money', color: 'orange'  },
+  { key: 'moov_money',   label: 'Moov Money',   color: 'blue'    },
 ];

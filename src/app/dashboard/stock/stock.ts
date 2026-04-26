@@ -4,9 +4,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
-  LucideAngularModule,
+  LucideAngularModule, LucideIconData,
   History, Search, Plus, Minus, SlidersHorizontal,
-  Package, ArrowDownToLine, ArrowUpFromLine, X, ChevronDown,
+  Package, ArrowDownToLine, ArrowUpFromLine, X, ChevronDown, ShoppingCart,
 } from 'lucide-angular';
 import { StockService } from './stock.service';
 import { ProductService } from '../products/product.service';
@@ -188,8 +188,14 @@ export class StockComponent implements OnInit {
     return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800/50';
   }
 
-  movementIcon(type: MovementType): string {
-    return MOVEMENT_TYPES.find(t => t.key === type)?.icon ?? '•';
+  movementIcon(type: MovementType): LucideIconData {
+    switch (type) {
+      case 'entree':     return ArrowDownToLine;
+      case 'sortie':     return ArrowUpFromLine;
+      case 'ajustement': return SlidersHorizontal;
+      case 'vente':      return ShoppingCart;
+      default:           return Package;
+    }
   }
 
   movementLabel(type: MovementType): string {

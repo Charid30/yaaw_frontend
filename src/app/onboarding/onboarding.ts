@@ -4,6 +4,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import {
+  LucideAngularModule, LucideIconData,
+  ShoppingBag, UtensilsCrossed, Pill, Wine,
+  Package, ShoppingCart, BarChart2, Zap, CheckCircle,
+} from 'lucide-angular';
 import { ShopService } from '../shop/shop.service';
 import { CommerceType, CreateShopPayload } from '../shop/shop.model';
 
@@ -11,7 +16,7 @@ interface CommerceTypeOption {
   key:            CommerceType;
   label:          string;
   desc:           string;
-  icon:           string;
+  icon:           LucideIconData;
   defaultModules: { stock: boolean; commandes: boolean; rapports: boolean };
 }
 
@@ -20,7 +25,7 @@ interface WizardStep { n: number; label: string; }
 @Component({
   selector: 'app-onboarding',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './onboarding.html',
   styleUrl: './onboarding.scss',
 })
@@ -28,6 +33,8 @@ export class OnboardingComponent {
   currentStep = signal(1);
   loading     = signal(false);
   errorMsg    = signal('');
+
+  readonly icons = { Package, ShoppingCart, BarChart2, Zap, CheckCircle };
 
   readonly currentYear = new Date().getFullYear();
 
@@ -52,28 +59,28 @@ export class OnboardingComponent {
       key:            'boutique',
       label:          'Boutique',
       desc:           'Vêtements, épicerie, électronique, quincaillerie…',
-      icon:           '🛍️',
+      icon:           ShoppingBag,
       defaultModules: { stock: true, commandes: false, rapports: true },
     },
     {
       key:            'restaurant',
       label:          'Restaurant / Café',
       desc:           'Menus, tables, commandes, livraisons…',
-      icon:           '🍽️',
+      icon:           UtensilsCrossed,
       defaultModules: { stock: true, commandes: true, rapports: true },
     },
     {
       key:            'pharmacie',
       label:          'Pharmacie',
       desc:           'Médicaments, parapharmacie, ordonnances…',
-      icon:           '💊',
+      icon:           Pill,
       defaultModules: { stock: true, commandes: false, rapports: true },
     },
     {
       key:            'cave',
       label:          'Cave / Bar',
       desc:           'Boissons, alcools, snacks, carte de boissons…',
-      icon:           '🍷',
+      icon:           Wine,
       defaultModules: { stock: true, commandes: true, rapports: true },
     },
   ];

@@ -18,7 +18,7 @@
   @if (successMsg()) {
     <div class="mb-4 flex items-center gap-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200
                 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400 rounded-xl px-4 py-3 text-sm">
-      ✓ {{ successMsg() }}
+      <lucide-icon [img]="icons.CheckCircle" class="w-4 h-4 flex-shrink-0" /> {{ successMsg() }}
     </div>
   }
 

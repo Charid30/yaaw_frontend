@@ -2,10 +2,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  LucideAngularModule,
-  Search, Users, ChevronLeft, ChevronRight, UserCheck, UserX, UserPlus, Trash2,
-} from 'lucide-angular';
+import { LucideAngularModule, Search, Users, ChevronLeft, ChevronRight, UserCheck, UserX, UserPlus, Trash2, CheckCircle, AlertCircle } from 'lucide-angular';
 import { AdminApiService, AdminUser } from '../../admin.service';
 
 interface CreateForm {
@@ -49,7 +46,7 @@ export class AdminUsersComponent implements OnInit {
   successMsg = signal('');
   errorMsg   = signal('');
 
-  readonly icons = { Search, Users, ChevronLeft, ChevronRight, UserCheck, UserX, UserPlus, Trash2 };
+  readonly icons = { CheckCircle, AlertCircle, Search, Users, ChevronLeft, ChevronRight, UserCheck, UserX, UserPlus, Trash2 };
 
   constructor(private adminApi: AdminApiService) {}
 

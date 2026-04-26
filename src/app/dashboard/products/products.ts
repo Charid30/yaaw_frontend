@@ -3,15 +3,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  LucideAngularModule, LucideIconData,
-  Package, ShoppingBag, Utensils, Pill, Wine, Shirt,
-  Laptop, Smartphone, Wrench, Droplets, Beef, Coffee,
-  Wheat, Sparkles, BookOpen, Car, Baby, Dumbbell, Home, Gem,
-  Tag, Apple, Fish, Layers, Scissors,
-  Plus, Search, Pencil, Trash2, X, ChevronLeft, ChevronRight,
-  LayoutGrid, ListFilter,
-} from 'lucide-angular';
+import { LucideAngularModule, LucideIconData, Package, ShoppingBag, Utensils, Pill, Wine, Shirt, Laptop, Smartphone, Wrench, Droplets, Beef, Coffee, Wheat, Sparkles, BookOpen, Car, Baby, Dumbbell, Home, Gem, Tag, Apple, Fish, Layers, Scissors, Plus, Search, Pencil, Trash2, X, ChevronLeft, ChevronRight, LayoutGrid, ListFilter, CheckCircle, AlertCircle } from 'lucide-angular';
 import { ProductService } from './product.service';
 import { ShopService } from '../../shop/shop.service';
 import { Product, Category, ProductFormData, UNITES } from './product.model';
@@ -64,7 +56,7 @@ export class ProductsComponent implements OnInit {
   readonly unites = UNITES;
 
   // ── Icônes générales (actions) ────────────────────────────
-  readonly icons = { Plus, Search, Pencil, Trash2, X, ChevronLeft, ChevronRight, LayoutGrid, ListFilter, Package };
+  readonly icons = { CheckCircle, AlertCircle, Plus, Search, Pencil, Trash2, X, ChevronLeft, ChevronRight, LayoutGrid, ListFilter, Package };
 
   // ── Palette de couleurs ────────────────────────────────────
   readonly PRESET_COLORS = [

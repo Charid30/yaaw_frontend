@@ -3,11 +3,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  LucideAngularModule,
-  Truck, Plus, Search, Pencil, Trash2, X,
-  ChevronLeft, ChevronRight, Phone, Mail, MapPin, StickyNote,
-} from 'lucide-angular';
+import { LucideAngularModule, Truck, Plus, Search, Pencil, Trash2, X, ChevronLeft, ChevronRight, Phone, Mail, MapPin, StickyNote, CheckCircle, AlertCircle } from 'lucide-angular';
 import { SupplierService } from './supplier.service';
 import { Supplier, SupplierFormData } from './supplier.model';
 
@@ -42,7 +38,7 @@ export class SuppliersComponent implements OnInit {
   successMsg = signal('');
 
   readonly icons = {
-    Truck, Plus, Search, Pencil, Trash2, X,
+    CheckCircle, AlertCircle, Truck, Plus, Search, Pencil, Trash2, X,
     ChevronLeft, ChevronRight, Phone, Mail, MapPin, StickyNote,
   };
 

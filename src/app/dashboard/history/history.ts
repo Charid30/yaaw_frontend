@@ -5,8 +5,9 @@ import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
   History, Search, ChevronLeft, ChevronRight, X,
-  Banknote, Smartphone, CreditCard, Eye, Filter,
+  Banknote, Smartphone, CreditCard, Eye, Filter, Printer,
 } from 'lucide-angular';
+import { buildReceiptHtml, printInFrame } from '../sales/receipt.util';
 import { SaleService } from '../sales/sale.service';
 import { ShopService } from '../../shop/shop.service';
 import { Sale, PaymentMethod, PAYMENT_METHODS } from '../sales/sale.model';
@@ -40,7 +41,7 @@ export class HistoryComponent implements OnInit {
 
   readonly devise = computed(() => this.shopService.shop()?.devise ?? 'FCFA');
   readonly paymentMethods = PAYMENT_METHODS;
-  readonly icons = { History, Search, ChevronLeft, ChevronRight, X, Banknote, Smartphone, CreditCard, Eye, Filter };
+  readonly icons = { History, Search, ChevronLeft, ChevronRight, X, Banknote, Smartphone, CreditCard, Eye, Filter, Printer };
 
   // Total CA de la page courante
   readonly pageTotal = computed(() =>
@@ -119,5 +120,17 @@ export class HistoryComponent implements OnInit {
       moov_money:   'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
     };
     return map[m] ?? 'bg-slate-100 text-slate-600';
+  }
+
+  printSaleReceipt(): void {
+    const sale = this.selectedSale();
+    const shop = this.shopService.shop();
+    if (!sale) return;
+    printInFrame(buildReceiptHtml({
+      sale,
+      shopNom:  shop?.nom           ?? 'YAAHW',
+      shopType: shop?.type_commerce ?? '',
+      devise:   this.devise(),
+    }));
   }
 }

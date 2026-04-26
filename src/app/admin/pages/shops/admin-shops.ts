@@ -2,7 +2,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, Store, ChevronLeft, ChevronRight, ToggleLeft, ToggleRight, Check, X } from 'lucide-angular';
+import { LucideAngularModule, Search, Store, ChevronLeft, ChevronRight, ToggleLeft, ToggleRight, Check, X, AlertCircle } from 'lucide-angular';
 import { AdminApiService, AdminShop } from '../../admin.service';
 
 @Component({
@@ -24,7 +24,7 @@ export class AdminShopsComponent implements OnInit {
   updatingId = signal<string | null>(null);
   errorMsg   = signal('');
 
-  readonly icons = { Search, Store, ChevronLeft, ChevronRight, ToggleLeft, ToggleRight, Check, X };
+  readonly icons = { AlertCircle, Search, Store, ChevronLeft, ChevronRight, ToggleLeft, ToggleRight, Check, X };
 
   readonly TYPE_COLORS: Partial<Record<string, string>> = {
     boutique:   'bg-indigo-900/40 text-indigo-300',
@@ -65,12 +65,28 @@ export class AdminShopsComponent implements OnInit {
   toggleModule(shop: AdminShop, module: 'stock' | 'rapports'): void {
     this.updatingId.set(shop.id);
     this.errorMsg.set('');
-    const newVal  = !shop.modules[module];
-    const modules = { ...shop.modules, [module]: newVal };
-    this.adminApi.updateShop(shop.id, { modules }).subscribe({
-      next: () => {
+
+    // S'assurer que shop.modules est un objet (pas une string résiduelle du cache)
+    const safeModules: Record<string, boolean> =
+      shop.modules && typeof shop.modules === 'object' && !Array.isArray(shop.modules)
+        ? shop.modules as Record<string, boolean>
+        : { stock: true, rapports: true, commandes: false };
+
+    const newVal = !safeModules[module];
+
+    // N'envoyer QUE la clé modifiée — le backend mergera avec les valeurs en base
+    this.adminApi.updateShop(shop.id, { modules: { [module]: newVal } }).subscribe({
+      next: (res) => {
+        // Mettre à jour en local avec les modules retournés par le serveur (source de vérité)
+        const raw = res?.data?.shop?.modules;
+        const freshModules: AdminShop['modules'] = {
+          stock:    raw?.['stock']    ?? safeModules['stock']    ?? true,
+          rapports: raw?.['rapports'] ?? safeModules['rapports'] ?? true,
+          ...(raw ?? {}),
+          [module]: newVal,
+        };
         this.shops.update(list =>
-          list.map(s => s.id === shop.id ? { ...s, modules } : s)
+          list.map(s => s.id === shop.id ? { ...s, modules: freshModules } : s)
         );
         this.updatingId.set(null);
       },

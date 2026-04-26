@@ -10,7 +10,7 @@
   @if (errorMsg()) {
     <div class="mb-4 flex items-center gap-2.5 bg-red-950/40 border border-red-800/50 text-red-400 rounded-xl px-4 py-3 text-sm cursor-pointer"
          (click)="errorMsg.set('')">
-      ✕ {{ errorMsg() }}
+      <lucide-icon [img]="icons.AlertCircle" class="w-4 h-4 flex-shrink-0" /> {{ errorMsg() }}
     </div>
   }
 
