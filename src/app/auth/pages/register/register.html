@@ -1,82 +1,117 @@
-<!-- Register page — split-screen -->
+<!-- Register page — accès restreint, premium redesign -->
 <div class="flex min-h-screen">
 
-  <!-- ── Panneau gauche (marque) ── -->
-  <div class="hidden lg:flex lg:w-[45%] relative flex-col justify-between overflow-hidden
-              bg-gradient-to-br from-violet-600 via-indigo-700 to-indigo-800 p-12">
-    <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/5"></div>
-    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-violet-500/10"></div>
+  <!-- ── Panneau gauche (marque) ─────────────────────────────────── -->
+  <div class="hidden lg:flex lg:w-[52%] relative flex-col justify-between overflow-hidden bg-slate-950 p-12">
 
-    <!-- Logo -->
-    <div class="relative z-10 flex items-center gap-3">
-      <div class="grid size-10 place-content-center rounded-xl bg-white/20 backdrop-blur-sm">
-        <svg class="size-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-        </svg>
+    <!-- Grille de fond -->
+    <div class="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.08)_1px,transparent_1px)] bg-[size:48px_48px]"></div>
+
+    <!-- Orbes lumineux -->
+    <div class="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-violet-600/25 blur-[100px]"></div>
+    <div class="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-indigo-600/15 blur-[90px]"></div>
+
+    <!-- Logo + retour accueil -->
+    <div class="relative z-10 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+          <span class="text-white font-extrabold text-sm">Y</span>
+        </div>
+        <span class="text-xl font-extrabold text-white tracking-tight">YAAHW</span>
       </div>
-      <span class="text-xl font-bold text-white tracking-wide">Yaahw</span>
+      <a routerLink="/"
+         class="flex items-center gap-1.5 text-slate-500 hover:text-slate-300 text-xs font-medium transition no-underline">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+        </svg>
+        Accueil
+      </a>
     </div>
 
-    <!-- Citation -->
-    <div class="relative z-10 max-w-xs">
-      <blockquote class="text-xl font-semibold text-white/90 italic leading-relaxed mb-4">
+    <!-- Citation centrale -->
+    <div class="relative z-10 max-w-sm">
+      <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center mb-6">
+        <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+        </svg>
+      </div>
+      <blockquote class="text-2xl font-bold text-white leading-relaxed mb-6">
         "Un outil pensé pour votre réalité, pas l'inverse."
       </blockquote>
-      <div class="flex items-center gap-3 mt-6">
-        <div class="grid size-10 place-content-center rounded-full bg-white/20 text-white font-bold text-sm">Y</div>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shrink-0">
+          <span class="text-white font-bold text-sm">Y</span>
+        </div>
         <div>
-          <p class="text-sm font-medium text-white">Équipe Yaahw</p>
-          <p class="text-xs text-indigo-200/70">Ouagadougou, Burkina Faso</p>
+          <p class="text-sm font-semibold text-white">Équipe Yaahw</p>
+          <p class="text-xs text-slate-500">Ouagadougou, Burkina Faso</p>
         </div>
       </div>
     </div>
 
-    <p class="relative z-10 text-indigo-200/50 text-xs">© {{ currentYear }} Yaahw</p>
+    <!-- Footer gauche -->
+    <div class="relative z-10">
+      <p class="text-slate-600 text-xs">© {{ currentYear }} YAAHW · Tous droits réservés</p>
+    </div>
   </div>
 
-  <!-- ── Panneau droit (formulaire) ── -->
-  <div class="flex flex-1 flex-col items-center justify-center px-6 py-12
-              bg-white dark:bg-slate-950 overflow-y-auto">
+  <!-- ── Panneau droit ────────────────────────────────────────────── -->
+  <div class="flex flex-1 flex-col items-center justify-center px-6 py-12 bg-white relative overflow-y-auto">
+
+    <!-- Lien retour (mobile) -->
+    <a routerLink="/"
+       class="lg:hidden absolute top-5 left-5 flex items-center gap-1.5 text-slate-400 hover:text-slate-600 text-sm font-medium transition no-underline">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+      </svg>
+      Retour
+    </a>
 
     <!-- Logo mobile -->
-    <div class="mb-6 flex items-center gap-2 lg:hidden">
-      <div class="grid size-9 place-content-center rounded-xl bg-indigo-600">
-        <svg class="size-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-        </svg>
+    <div class="mb-8 flex items-center gap-2.5 lg:hidden">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <span class="text-white font-extrabold text-sm">Y</span>
       </div>
-      <span class="text-lg font-bold text-slate-900 dark:text-white">Yaahw</span>
+      <span class="text-xl font-extrabold text-slate-900 tracking-tight">YAAHW</span>
     </div>
 
     <div class="w-full max-w-sm text-center">
 
-      <!-- Icône cadenas -->
-      <div class="mx-auto mb-6 grid size-16 place-content-center rounded-2xl bg-slate-100 dark:bg-slate-800">
-        <svg class="size-8 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+      <!-- Icône shield -->
+      <div class="mx-auto mb-7 w-20 h-20 rounded-3xl bg-gradient-to-br from-slate-50 to-slate-100
+                  border border-slate-200 flex items-center justify-center shadow-sm">
+        <svg class="w-9 h-9 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
-            d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
         </svg>
       </div>
 
-      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Accès restreint</h2>
-      <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-        L'inscription publique est désactivée.<br>
-        Les comptes gérant sont créés par l'administrateur de la plateforme.
-      </p>
-      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-        Contactez votre administrateur pour obtenir vos accès.
+      <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Accès réservé</h2>
+      <p class="mt-3 text-sm text-slate-500 leading-relaxed max-w-[280px] mx-auto">
+        L'inscription publique est désactivée.<br/>
+        Les comptes sont créés par l'administrateur de la plateforme.
       </p>
 
+      <!-- Info box -->
+      <div class="mt-6 flex items-start gap-3 px-4 py-4 rounded-xl bg-indigo-50 border border-indigo-100 text-left">
+        <svg class="w-4 h-4 mt-0.5 shrink-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
+        </svg>
+        <p class="text-xs text-indigo-700 leading-relaxed">
+          Contactez votre administrateur pour obtenir vos identifiants d'accès à la plateforme.
+        </p>
+      </div>
+
       <a routerLink="/auth/login"
-         class="mt-8 inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700
-                px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-600/20 transition">
-        <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+         class="mt-7 flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-xl
+                bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold text-white
+                shadow-lg shadow-indigo-500/25 transition no-underline">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
         </svg>
         Retour à la connexion
       </a>
+
     </div>
   </div>
 </div>

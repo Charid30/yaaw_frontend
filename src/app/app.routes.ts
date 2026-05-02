@@ -4,8 +4,13 @@ import { onboardingGuard } from './onboarding/onboarding.guard';
 import { adminGuard } from './admin/admin.guard';
 
 export const routes: Routes = [
-  // Redirection par défaut
-  { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
+  // Landing page
+  {
+    path: '',
+    loadComponent: () =>
+      import('./landing/landing').then((m) => m.LandingComponent),
+    pathMatch: 'full',
+  },
 
   // Auth (publiques — redirige si déjà connecté)
   {
@@ -117,5 +122,5 @@ export const routes: Routes = [
   },
 
   // Catch-all
-  { path: '**', redirectTo: 'auth/login' },
+  { path: '**', redirectTo: '' },
 ];
