@@ -125,7 +125,7 @@
 
                 <!-- Prix + stock -->
                 <div class="flex items-end justify-between gap-1">
-                  <p class="text-base font-black text-indigo-600 dark:text-indigo-400 leading-none">
+                  <p class="text-sm font-bold text-indigo-600 dark:text-indigo-400 leading-none">
                     {{ formatPrice(product.prix) }}
                   </p>
                   <p class="text-[10px] font-semibold shrink-0"
@@ -147,14 +147,12 @@
   <!-- ════════════════════════════════════════
        DROITE — Panier & Paiement
   ════════════════════════════════════════ -->
-  <div class="w-80 lg:w-96 flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shrink-0 shadow-xl shadow-slate-900/5">
+  <div class="w-80 lg:w-96 flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shrink-0">
 
     <!-- En-tête panier -->
-    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
-      <div class="flex items-center gap-2.5">
-        <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center">
-          <lucide-icon [img]="icons.ShoppingCart" [size]="14" class="text-indigo-600 dark:text-indigo-400" />
-        </div>
+    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+      <div class="flex items-center gap-2">
+        <lucide-icon [img]="icons.ShoppingCart" [size]="15" class="text-indigo-600" />
         <span class="font-bold text-slate-900 dark:text-white text-sm">Panier</span>
         @if (cartItemCount() > 0) {
           <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">
@@ -163,126 +161,101 @@
         }
       </div>
       @if (cart().length > 0) {
-        <button (click)="clearCart()"
-                class="text-xs font-semibold text-slate-400 hover:text-red-500 transition-colors px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20">
+        <button (click)="clearCart()" class="text-xs font-semibold text-slate-400 hover:text-red-500 transition-colors">
           Vider
         </button>
       }
     </div>
 
-    <!-- Liste articles -->
-    <div class="flex-1 overflow-y-auto">
+    <!-- ── ARTICLES (zone scrollable) ── -->
+    <div class="overflow-y-auto border-b border-slate-100 dark:border-slate-800"
+         style="max-height: 280px; min-height: 80px;">
       @if (cart().length === 0) {
-        <div class="flex flex-col items-center justify-center h-full text-center py-10 px-6">
-          <div class="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center mb-4">
-            <lucide-icon [img]="icons.ShoppingCart" [size]="24" class="text-slate-300 dark:text-slate-600" />
-          </div>
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Panier vide</p>
-          <p class="text-xs text-slate-400 mt-1">Cliquez sur un produit pour l'ajouter</p>
+        <div class="flex flex-col items-center justify-center py-8 text-center px-4">
+          <lucide-icon [img]="icons.ShoppingCart" [size]="28" class="text-slate-200 dark:text-slate-700 mb-2" />
+          <p class="text-xs text-slate-400 font-medium">Sélectionnez des produits</p>
         </div>
       } @else {
-        <div class="px-4 py-3 space-y-2">
+        <div class="p-3 space-y-2">
           @for (item of cart(); track item.product.id) {
-            <div class="rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/50 overflow-hidden">
+            <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl
+                        bg-slate-50 dark:bg-slate-800/60
+                        border border-slate-100 dark:border-slate-700">
 
-              <!-- Bande couleur catégorie -->
-              <div class="h-1 w-full"
+              <!-- Pastille couleur catégorie -->
+              <div class="w-2 h-8 rounded-full shrink-0"
                    [style.background-color]="item.product.categorie?.couleur ?? '#6366f1'"></div>
 
-              <div class="px-3 py-2.5">
-                <!-- Ligne 1 : nom + bouton supprimer -->
-                <div class="flex items-start justify-between gap-2 mb-2">
-                  <p class="text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug flex-1">
-                    {{ item.product.nom }}
-                  </p>
-                  <button (click)="updateQty(item.product.id, -item.quantity)"
-                          class="shrink-0 text-slate-300 hover:text-red-500 transition-colors mt-0.5">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                  </button>
-                </div>
-
-                <!-- Ligne 2 : contrôles qté + montant -->
-                <div class="flex items-center justify-between gap-2">
-                  <!-- Contrôles quantité -->
-                  <div class="flex items-center gap-1.5">
-                    <button (click)="updateQty(item.product.id, -1)"
-                            class="w-7 h-7 rounded-lg flex items-center justify-center font-bold
-                                   bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600
-                                   hover:bg-red-50 hover:text-red-500 hover:border-red-200
-                                   transition-all text-slate-500 text-base leading-none">
-                      −
-                    </button>
-                    <span class="w-8 text-center text-sm font-black text-slate-900 dark:text-slate-100 tabular-nums">
-                      {{ item.quantity }}
-                    </span>
-                    <button (click)="updateQty(item.product.id, 1)"
-                            [disabled]="item.quantity >= item.product.stock_qty"
-                            class="w-7 h-7 rounded-lg flex items-center justify-center font-bold
-                                   bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600
-                                   hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300
-                                   transition-all text-slate-500 text-base leading-none disabled:opacity-30">
-                      +
-                    </button>
-                  </div>
-
-                  <!-- Prix unitaire × qté = total -->
-                  <div class="text-right">
-                    <p class="text-xs text-slate-400 tabular-nums">
-                      {{ formatPrice(item.product.prix) }} × {{ item.quantity }}
-                    </p>
-                    <p class="text-sm font-black text-slate-900 dark:text-white tabular-nums">
-                      {{ formatPrice(item.product.prix * item.quantity) }}
-                    </p>
-                  </div>
-                </div>
+              <!-- Nom + prix unitaire -->
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate leading-tight">
+                  {{ item.product.nom }}
+                </p>
+                <p class="text-xs text-slate-400 mt-0.5">{{ formatPrice(item.product.prix) }} / unité</p>
               </div>
+
+              <!-- Contrôles qté -->
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button (click)="updateQty(item.product.id, -1)"
+                        class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600
+                               flex items-center justify-center text-sm font-bold text-slate-500
+                               hover:border-red-300 hover:text-red-500 transition-all">−</button>
+                <span class="w-6 text-center text-sm font-bold text-slate-900 dark:text-white tabular-nums">{{ item.quantity }}</span>
+                <button (click)="updateQty(item.product.id, 1)"
+                        [disabled]="item.quantity >= item.product.stock_qty"
+                        class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600
+                               flex items-center justify-center text-sm font-bold text-slate-500
+                               hover:border-indigo-300 hover:text-indigo-600 transition-all disabled:opacity-30">+</button>
+              </div>
+
+              <!-- Sous-total ligne -->
+              <p class="text-sm font-bold text-slate-800 dark:text-slate-100 tabular-nums shrink-0 min-w-[72px] text-right">
+                {{ formatPrice(item.product.prix * item.quantity) }}
+              </p>
+
+              <!-- Supprimer -->
+              <button (click)="updateQty(item.product.id, -item.quantity)"
+                      class="text-slate-300 hover:text-red-500 transition-colors shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
             </div>
           }
         </div>
       }
     </div>
 
-    <!-- Zone inférieure : client, remise, total, paiement -->
-    @if (cart().length > 0) {
-      <div class="shrink-0 border-t border-slate-100 dark:border-slate-800">
+    <!-- ── TOTAUX + PAIEMENT (zone fixe) ── -->
+    <div class="flex-1 overflow-y-auto px-4 py-3 space-y-3">
 
+      <!-- Client + Remise côte à côte -->
+      <div class="grid grid-cols-2 gap-2">
         <!-- Client -->
-        <div class="px-4 pt-3 pb-2">
+        <div>
           @if (selectedCustomer()) {
-            <div class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800">
-              <div class="flex items-center gap-2">
-                <div class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">
-                  {{ selectedCustomer()!.nom[0] }}
-                </div>
-                <span class="text-sm font-semibold text-indigo-700 dark:text-indigo-300 truncate">{{ selectedCustomer()!.nom }}</span>
-              </div>
-              <button (click)="clearCustomer()" class="text-indigo-400 hover:text-indigo-700 text-lg leading-none ml-2">&times;</button>
+            <div class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-indigo-50 border border-indigo-200 dark:bg-indigo-950/30 dark:border-indigo-800">
+              <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-300 truncate">{{ selectedCustomer()!.nom }}</span>
+              <button (click)="clearCustomer()" class="text-indigo-400 hover:text-red-500 ml-1 text-sm leading-none font-bold">&times;</button>
             </div>
           } @else {
             <div class="relative">
-              <input type="text" placeholder="Client (optionnel)…"
-                     class="w-full rounded-xl border border-slate-200 dark:border-slate-700
-                            bg-slate-50 dark:bg-slate-800/50 px-3.5 py-2.5 text-sm
+              <input type="text" placeholder="Client…"
+                     class="w-full rounded-lg border border-slate-200 dark:border-slate-700
+                            bg-slate-50 dark:bg-slate-800/50 px-2.5 py-2 text-xs
                             text-slate-900 dark:text-white placeholder:text-slate-400
-                            focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                            focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 outline-none transition-all"
                      [ngModel]="customerSearch()"
                      (ngModelChange)="customerSearch.set($event); showCustomerDrop.set(true)"
                      (focus)="showCustomerDrop.set(true)"
                      (blur)="$any($event.relatedTarget)?.closest('.customer-drop') ? null : showCustomerDrop.set(false)" />
               @if (showCustomerDrop() && filteredCustomers().length > 0) {
-                <div class="customer-drop absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-20 overflow-hidden">
+                <div class="customer-drop absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-20 overflow-hidden">
                   @for (c of filteredCustomers(); track c.id) {
                     <button type="button" (mousedown)="selectCustomer(c)"
-                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-slate-900 dark:text-white transition-colors flex items-center gap-2.5">
-                      <div class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-slate-300 shrink-0">
-                        {{ c.nom[0] }}
-                      </div>
-                      <div>
-                        <span class="font-semibold">{{ c.nom }}</span>
-                        @if (c.telephone) { <span class="text-slate-400 text-xs ml-2">{{ c.telephone }}</span> }
-                      </div>
+                            class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-slate-900 dark:text-white transition-colors font-medium">
+                      {{ c.nom }}
+                      @if (c.telephone) { <span class="text-slate-400 ml-1">{{ c.telephone }}</span> }
                     </button>
                   }
                 </div>
@@ -292,153 +265,122 @@
         </div>
 
         <!-- Remise -->
-        <div class="px-4 pb-3">
-          <div class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0">Remise</span>
-            <div class="flex rounded-lg overflow-hidden border border-slate-200 dark:border-slate-600 shrink-0">
-              <button type="button"
-                      (click)="discountType.set('percent'); discountValue.set(0)"
-                      class="px-2.5 py-1 text-xs font-bold transition-colors"
-                      [ngClass]="discountType() === 'percent'
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-white dark:bg-slate-700 text-slate-500 hover:bg-slate-50'">
-                %
-              </button>
-              <button type="button"
-                      (click)="discountType.set('fixed'); discountValue.set(0)"
-                      class="px-2.5 py-1 text-xs font-bold transition-colors"
-                      [ngClass]="discountType() === 'fixed'
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-white dark:bg-slate-700 text-slate-500 hover:bg-slate-50'">
-                F
-              </button>
-            </div>
-            <input type="number" min="0"
-                   [max]="discountType() === 'percent' ? 100 : cartTotal()"
-                   [ngModel]="discountValue()"
-                   (ngModelChange)="discountValue.set(+$event || 0)"
-                   placeholder="0"
-                   class="flex-1 min-w-0 bg-transparent text-sm font-bold text-slate-800 dark:text-slate-100 outline-none text-right" />
-            @if (discountAmount() > 0) {
-              <span class="text-xs text-emerald-600 font-bold shrink-0">−{{ formatPrice(discountAmount()) }}</span>
-            }
+        <div class="flex items-center gap-1 px-2.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+          <div class="flex rounded overflow-hidden border border-slate-200 dark:border-slate-600 shrink-0">
+            <button type="button" (click)="discountType.set('percent'); discountValue.set(0)"
+                    class="px-1.5 py-0.5 text-[10px] font-bold transition-colors"
+                    [ngClass]="discountType() === 'percent' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-slate-700 text-slate-500'">%</button>
+            <button type="button" (click)="discountType.set('fixed'); discountValue.set(0)"
+                    class="px-1.5 py-0.5 text-[10px] font-bold transition-colors"
+                    [ngClass]="discountType() === 'fixed' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-slate-700 text-slate-500'">F</button>
           </div>
-        </div>
-
-        <!-- Séparateur + Totaux -->
-        <div class="mx-4 border-t border-dashed border-slate-200 dark:border-slate-700 pt-3 pb-2 space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-slate-400 font-medium">Sous-total</span>
-            <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">{{ formatPrice(cartTotal()) }}</span>
-          </div>
-          @if (discountAmount() > 0) {
-            <div class="flex justify-between items-center">
-              <span class="text-xs text-emerald-600 font-medium">Remise</span>
-              <span class="text-xs font-semibold text-emerald-600">−{{ formatPrice(discountAmount()) }}</span>
-            </div>
-          }
-          @if (tvaAmount() > 0) {
-            <div class="flex justify-between items-center">
-              <span class="text-xs text-slate-400 font-medium">TVA ({{ shop()!.tva_rate }}%)</span>
-              <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">{{ formatPrice(tvaAmount()) }}</span>
-            </div>
-          }
-          <div class="flex justify-between items-center pt-1.5 border-t border-slate-200 dark:border-slate-700">
-            <span class="text-sm font-bold text-slate-900 dark:text-white">Total</span>
-            <span class="text-xl font-black text-indigo-600 dark:text-indigo-400">{{ formatPrice(grandTotal()) }}</span>
-          </div>
-        </div>
-
-        <!-- Mode de paiement -->
-        <div class="px-4 pb-3">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Mode de paiement</p>
-          <div class="grid grid-cols-3 gap-2">
-            @for (method of paymentMethods; track method.key) {
-              <button type="button" (click)="paymentMethod.set(method.key)"
-                      class="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 text-xs font-bold transition-all"
-                      [ngClass]="paymentMethod() === method.key
-                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:border-indigo-400 dark:text-indigo-300 shadow-sm shadow-indigo-500/20'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-300 bg-white dark:bg-slate-800'">
-                <lucide-icon [img]="method.key === 'especes' ? icons.Banknote : icons.Smartphone" [size]="17" />
-                <span class="text-[10px] leading-tight text-center">{{ method.label }}</span>
-              </button>
-            }
-          </div>
-        </div>
-
-        <!-- Montant reçu (espèces) -->
-        @if (paymentMethod() === 'especes') {
-          <div class="px-4 pb-3">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Montant reçu ({{ devise() }})</p>
-            <input type="number"
-                   [ngModel]="amountReceived()"
-                   (ngModelChange)="amountReceived.set($event)"
-                   [placeholder]="grandTotal().toString()"
-                   min="0"
-                   class="w-full rounded-xl border border-slate-200 dark:border-slate-700
-                          bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5
-                          text-center text-lg font-black text-slate-900 dark:text-white
-                          placeholder:text-slate-300 outline-none
-                          focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
-            @if ((amountReceived() ?? 0) >= grandTotal() && amountReceived() !== null) {
-              <div class="mt-2 flex justify-between items-center px-4 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
-                <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Monnaie à rendre</span>
-                <span class="text-sm font-black text-emerald-700 dark:text-emerald-400">{{ formatPrice(change()) }}</span>
-              </div>
-            }
-          </div>
-        } @else {
-          <div class="mx-4 mb-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-center">
-            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Montant à envoyer via {{ paymentMethod() === 'orange_money' ? 'Orange Money' : 'Moov Money' }}</p>
-            <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ formatPrice(grandTotal()) }}</p>
-          </div>
-        }
-
-        <!-- Note -->
-        <div class="px-4 pb-3">
-          <input type="text" [ngModel]="note()" (ngModelChange)="note.set($event)"
-                 placeholder="Note (optionnel)…"
-                 class="w-full rounded-xl border border-slate-200 dark:border-slate-700
-                        bg-slate-50 dark:bg-slate-800/50 px-3.5 py-2 text-xs
-                        text-slate-700 dark:text-white placeholder:text-slate-400
-                        focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 outline-none transition-all" />
-        </div>
-
-        <!-- Erreur -->
-        @if (errorMsg()) {
-          <div class="mx-4 mb-3 flex items-center gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl px-3.5 py-2.5 text-xs font-medium">
-            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            {{ errorMsg() }}
-          </div>
-        }
-
-        <!-- Bouton valider -->
-        <div class="px-4 pb-4">
-          <button type="button"
-                  (click)="validateSale()"
-                  [disabled]="!canValidate()"
-                  class="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl
-                         text-base font-black text-white tracking-wide
-                         bg-indigo-600 hover:bg-indigo-700
-                         disabled:opacity-40 disabled:cursor-not-allowed
-                         transition-all shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/40
-                         active:scale-[0.98]">
-            @if (processing()) {
-              <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-              </svg>
-              Traitement…
-            } @else {
-              <lucide-icon [img]="icons.Check" [size]="18" />
-              Valider · {{ formatPrice(grandTotal()) }}
-            }
-          </button>
+          <input type="number" min="0" [ngModel]="discountValue()" (ngModelChange)="discountValue.set(+$event || 0)"
+                 placeholder="0"
+                 class="flex-1 min-w-0 bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-100 outline-none text-right" />
         </div>
       </div>
-    }
+
+      <!-- Totaux -->
+      <div class="space-y-1 py-2 border-t border-slate-100 dark:border-slate-800">
+        <div class="flex justify-between text-xs text-slate-400">
+          <span>Sous-total</span>
+          <span class="font-medium tabular-nums">{{ formatPrice(cartTotal()) }}</span>
+        </div>
+        @if (discountAmount() > 0) {
+          <div class="flex justify-between text-xs text-emerald-600">
+            <span>Remise</span>
+            <span class="font-semibold tabular-nums">−{{ formatPrice(discountAmount()) }}</span>
+          </div>
+        }
+        @if (tvaAmount() > 0) {
+          <div class="flex justify-between text-xs text-slate-400">
+            <span>TVA ({{ shop()!.tva_rate }}%)</span>
+            <span class="font-medium tabular-nums">{{ formatPrice(tvaAmount()) }}</span>
+          </div>
+        }
+        <div class="flex justify-between items-center pt-1.5 border-t border-slate-200 dark:border-slate-700">
+          <span class="text-sm font-bold text-slate-900 dark:text-white">Total</span>
+          <span class="text-lg font-black text-indigo-600 dark:text-indigo-400 tabular-nums">{{ formatPrice(grandTotal()) }}</span>
+        </div>
+      </div>
+
+      <!-- Paiement -->
+      <div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Paiement</p>
+        <div class="grid grid-cols-3 gap-2">
+          @for (method of paymentMethods; track method.key) {
+            <button type="button" (click)="paymentMethod.set(method.key)"
+                    class="flex flex-col items-center gap-1 py-2.5 rounded-xl border-2 text-[10px] font-bold transition-all"
+                    [ngClass]="paymentMethod() === method.key
+                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:border-indigo-400 dark:text-indigo-300'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 hover:border-slate-300'">
+              <lucide-icon [img]="method.key === 'especes' ? icons.Banknote : icons.Smartphone" [size]="15" />
+              {{ method.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Montant reçu -->
+      @if (paymentMethod() === 'especes') {
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Montant reçu ({{ devise() }})</p>
+          <input type="number" [ngModel]="amountReceived()" (ngModelChange)="amountReceived.set($event)"
+                 [placeholder]="grandTotal().toString()" min="0"
+                 class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50
+                        px-4 py-2.5 text-center text-base font-bold text-slate-900 dark:text-white
+                        placeholder:text-slate-300 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 transition-all" />
+          @if ((amountReceived() ?? 0) >= grandTotal() && amountReceived() !== null) {
+            <div class="mt-2 flex justify-between items-center px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800">
+              <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Monnaie</span>
+              <span class="text-sm font-bold text-emerald-700 dark:text-emerald-400 tabular-nums">{{ formatPrice(change()) }}</span>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-center">
+          <p class="text-xs text-slate-400 font-medium">{{ paymentMethod() === 'orange_money' ? 'Orange Money' : 'Moov Money' }}</p>
+          <p class="text-lg font-black text-indigo-600 dark:text-indigo-400 tabular-nums mt-0.5">{{ formatPrice(grandTotal()) }}</p>
+        </div>
+      }
+
+      <!-- Note -->
+      <input type="text" [ngModel]="note()" (ngModelChange)="note.set($event)"
+             placeholder="Note (optionnel)…"
+             class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50
+                    px-3 py-2 text-xs text-slate-700 dark:text-white placeholder:text-slate-400
+                    focus:border-indigo-400 outline-none transition-all" />
+
+      <!-- Erreur -->
+      @if (errorMsg()) {
+        <div class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-3 py-2 text-xs">
+          <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          {{ errorMsg() }}
+        </div>
+      }
+    </div>
+
+    <!-- Bouton valider (fixe en bas) -->
+    <div class="px-4 pb-4 pt-2 border-t border-slate-100 dark:border-slate-800 shrink-0">
+      <button type="button" (click)="validateSale()" [disabled]="!canValidate()"
+              class="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl
+                     text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700
+                     disabled:opacity-40 disabled:cursor-not-allowed
+                     transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.98]">
+        @if (processing()) {
+          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          Traitement…
+        } @else {
+          <lucide-icon [img]="icons.Check" [size]="16" />
+          Valider · {{ formatPrice(grandTotal()) }}
+        }
+      </button>
+    </div>
   </div>
 </div>
 
