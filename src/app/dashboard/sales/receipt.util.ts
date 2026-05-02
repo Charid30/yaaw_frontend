@@ -1,13 +1,14 @@
 // src/app/dashboard/sales/receipt.util.ts
-
+import QRCode from 'qrcode';
 import { Sale, PaymentMethod, PAYMENT_METHODS } from './sale.model';
 
 export interface ReceiptData {
-  sale:       Sale;
-  shopNom:    string;
-  shopType:   string;
-  devise:     string;
+  sale:        Sale;
+  shopNom:     string;
+  shopType:    string;
+  devise:      string;
   customerNom?: string | null;
+  qrCodeSvg?:  string; // SVG string généré avant l'impression
 }
 
 function fmt(n: number, devise: string): string {
@@ -19,10 +20,48 @@ function paymentLabel(method: PaymentMethod | string): string {
 }
 
 /**
+ * Construit la chaîne de données pour le QR code.
+ * Format compact mais lisible par n'importe quel scanner.
+ */
+export function buildQrData(sale: Sale, devise: string): string {
+  const date = new Date(sale.created_at).toLocaleString('fr-FR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+
+  const articles = sale.items
+    .map(i => `${i.nom_produit} x${i.quantite} = ${fmt(i.montant, devise)}`)
+    .join(' | ');
+
+  return [
+    `REF:${sale.id}`,
+    `DATE:${date}`,
+    `ARTICLES:${articles}`,
+    `TOTAL:${fmt(sale.montant_total, devise)}`,
+    `PAIEMENT:${paymentLabel(sale.mode_paiement)}`,
+  ].join('\n');
+}
+
+/**
+ * Génère le SVG du QR code de manière asynchrone.
+ */
+export async function generateQrSvg(data: string): Promise<string> {
+  return QRCode.toString(data, {
+    type:         'svg',
+    margin:       1,
+    width:        160,
+    color: {
+      dark:  '#000000',
+      light: '#ffffff',
+    },
+  });
+}
+
+/**
  * Génère le HTML complet du ticket de caisse (format thermique 80mm).
  */
 export function buildReceiptHtml(d: ReceiptData): string {
-  const { sale, shopNom, shopType, devise } = d;
+  const { sale, shopNom, shopType, devise, qrCodeSvg } = d;
   const customerNom = d.customerNom ?? sale.customer?.nom ?? sale.customer_nom ?? null;
 
   const date = new Date(sale.created_at).toLocaleString('fr-FR', {
@@ -46,11 +85,19 @@ export function buildReceiptHtml(d: ReceiptData): string {
   const clientRow = customerNom
     ? `<tr><td>Client</td><td class="r"><strong>${customerNom}</strong></td></tr>` : '';
 
+  // Section QR code en bas du ticket
+  const qrSection = qrCodeSvg
+    ? `<div class="qr-wrap">
+        <div class="qr-img">${qrCodeSvg}</div>
+        <p class="qr-label">Scanner pour vérifier les détails</p>
+       </div>`
+    : '';
+
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Ticket</title>
+  <title>Ticket — ${shopNom}</title>
   <style>
     /* ── Taille papier thermique ── */
     @page {
@@ -118,11 +165,40 @@ export function buildReceiptHtml(d: ReceiptData): string {
     /* ── Pied de page ── */
     .footer {
       text-align: center;
-      margin-top: 8px;
-      padding-top: 6px;
+      margin-top: 10px;
+      padding-top: 8px;
       border-top: 1px dashed #000;
       font-size: 10px;
-      color: #555;
+      color: #222;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      line-height: 1.5;
+    }
+    .footer .merci {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* ── QR code ── */
+    .qr-wrap {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .qr-img svg {
+      width: 100px !important;
+      height: 100px !important;
+      display: block;
+    }
+    .qr-label {
+      font-size: 8px;
+      color: #777;
+      text-align: center;
+      margin-top: 2px;
     }
   </style>
 </head>
@@ -150,7 +226,12 @@ export function buildReceiptHtml(d: ReceiptData): string {
     ${clientRow}
   </table>
 
-  <div class="footer">Merci pour votre achat&nbsp;!</div>
+  <div class="footer">
+    <p class="merci">Merci d'&ecirc;tre pass&eacute; chez ${shopNom}&nbsp;!</p>
+    <p>À bient&ocirc;t !</p>
+  </div>
+
+  ${qrSection}
 </body>
 </html>`;
 }

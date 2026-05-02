@@ -7,7 +7,7 @@ import {
   History, Search, ChevronLeft, ChevronRight, X,
   Banknote, Smartphone, CreditCard, Eye, Filter, Printer, TrendingUp,
 } from 'lucide-angular';
-import { buildReceiptHtml, printInFrame } from '../sales/receipt.util';
+import { buildReceiptHtml, buildQrData, generateQrSvg, printInFrame } from '../sales/receipt.util';
 import { SaleService } from '../sales/sale.service';
 import { ShopService } from '../../shop/shop.service';
 import { Sale, PaymentMethod, PAYMENT_METHODS } from '../sales/sale.model';
@@ -122,15 +122,24 @@ export class HistoryComponent implements OnInit {
     return map[m] ?? 'bg-slate-100 text-slate-600';
   }
 
-  printSaleReceipt(): void {
+  async printSaleReceipt(): Promise<void> {
     const sale = this.selectedSale();
     const shop = this.shopService.shop();
     if (!sale) return;
+
+    let qrCodeSvg: string | undefined;
+    try {
+      qrCodeSvg = await generateQrSvg(buildQrData(sale, this.devise()));
+    } catch {
+      qrCodeSvg = undefined;
+    }
+
     printInFrame(buildReceiptHtml({
       sale,
-      shopNom:  shop?.nom           ?? 'YAAHW',
-      shopType: shop?.type_commerce ?? '',
-      devise:   this.devise(),
+      shopNom:    shop?.nom           ?? 'YAAHW',
+      shopType:   shop?.type_commerce ?? '',
+      devise:     this.devise(),
+      qrCodeSvg,
     }));
   }
 }
