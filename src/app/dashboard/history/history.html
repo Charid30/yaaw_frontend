@@ -2,11 +2,23 @@
 <div class="p-6 lg:p-8 max-w-6xl mx-auto">
 
   <!-- En-tête -->
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
-      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Historique des ventes</h1>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{{ total() }} vente{{ total() > 1 ? 's' : '' }} trouvée{{ total() > 1 ? 's' : '' }}</p>
+      <h1 class="text-xl font-bold text-slate-900 dark:text-white">Historique des ventes</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{{ total() }} transaction{{ total() > 1 ? 's' : '' }} trouvée{{ total() > 1 ? 's' : '' }}</p>
     </div>
+    <!-- KPI total page -->
+    @if (sales().length > 0) {
+      <div class="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-800/50">
+        <div class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
+          <lucide-icon [img]="icons.TrendingUp" [size]="15" class="text-indigo-600 dark:text-indigo-400" />
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Total affiché</p>
+          <p class="text-sm font-black text-indigo-700 dark:text-indigo-300 tabular-nums">{{ formatPrice(pageTotal()) }}</p>
+        </div>
+      </div>
+    }
   </div>
 
   <!-- Filtres -->
@@ -18,7 +30,7 @@
         <lucide-icon [img]="icons.Search" [size]="16" />
       </span>
       <input type="search" placeholder="Rechercher par produit ou client…"
-             class="search-input"
+             class="input-field search-input"
              [value]="searchQuery()"
              (input)="onSearch($any($event.target).value)" />
     </div>

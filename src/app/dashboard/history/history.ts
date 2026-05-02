@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
   History, Search, ChevronLeft, ChevronRight, X,
-  Banknote, Smartphone, CreditCard, Eye, Filter, Printer,
+  Banknote, Smartphone, CreditCard, Eye, Filter, Printer, TrendingUp,
 } from 'lucide-angular';
 import { buildReceiptHtml, printInFrame } from '../sales/receipt.util';
 import { SaleService } from '../sales/sale.service';
@@ -41,7 +41,7 @@ export class HistoryComponent implements OnInit {
 
   readonly devise = computed(() => this.shopService.shop()?.devise ?? 'FCFA');
   readonly paymentMethods = PAYMENT_METHODS;
-  readonly icons = { History, Search, ChevronLeft, ChevronRight, X, Banknote, Smartphone, CreditCard, Eye, Filter, Printer };
+  readonly icons = { History, Search, ChevronLeft, ChevronRight, X, Banknote, Smartphone, CreditCard, Eye, Filter, Printer, TrendingUp };
 
   // Total CA de la page courante
   readonly pageTotal = computed(() =>
