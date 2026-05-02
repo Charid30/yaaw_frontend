@@ -1,5 +1,5 @@
 // src/app/dashboard/sales/receipt.util.ts
-import QRCode from 'qrcode';
+import JsBarcode from 'jsbarcode';
 import { Sale, PaymentMethod, PAYMENT_METHODS } from './sale.model';
 
 export interface ReceiptData {
@@ -8,7 +8,7 @@ export interface ReceiptData {
   shopType:    string;
   devise:      string;
   customerNom?: string | null;
-  qrCodeSvg?:  string; // SVG string généré avant l'impression
+  barcodeSvg?: string; // SVG string généré avant l'impression
 }
 
 function fmt(n: number, devise: string): string {
@@ -20,48 +20,47 @@ function paymentLabel(method: PaymentMethod | string): string {
 }
 
 /**
- * Construit la chaîne de données pour le QR code.
- * Format compact mais lisible par n'importe quel scanner.
+ * Génère un code-barres CODE128 sous forme de SVG string.
+ * Encode : articles, date, total — lisible par tout scanner de code-barres.
+ * Synchrone, 100 % hors-ligne.
  */
-export function buildQrData(sale: Sale, devise: string): string {
-  const date = new Date(sale.created_at).toLocaleString('fr-FR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
+export function generateBarcodeSvg(sale: Sale, devise: string): string {
+  // Données compactes pour le code-barres
+  const date = new Date(sale.created_at)
+    .toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    .replace(/\//g, '-');
 
   const articles = sale.items
-    .map(i => `${i.nom_produit} x${i.quantite} = ${fmt(i.montant, devise)}`)
-    .join(' | ');
+    .map(i => `${i.nom_produit.slice(0, 12)} x${i.quantite}`)
+    .join(', ');
 
-  return [
-    `REF:${sale.id}`,
-    `DATE:${date}`,
-    `ARTICLES:${articles}`,
-    `TOTAL:${fmt(sale.montant_total, devise)}`,
-    `PAIEMENT:${paymentLabel(sale.mode_paiement)}`,
-  ].join('\n');
-}
+  const data = `${date} | ${articles} | ${sale.montant_total}${devise}`;
 
-/**
- * Génère le SVG du QR code de manière asynchrone.
- */
-export async function generateQrSvg(data: string): Promise<string> {
-  return QRCode.toString(data, {
-    type:         'svg',
-    margin:       1,
-    width:        160,
-    color: {
-      dark:  '#000000',
-      light: '#ffffff',
-    },
+  // Créer un <svg> virtuel dans le DOM (navigateur uniquement)
+  const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+  JsBarcode(svgEl, data, {
+    format:       'CODE128',
+    width:        1.2,
+    height:       45,
+    displayValue: true,
+    fontSize:     8,
+    margin:       4,
+    fontOptions:  'bold',
+    font:         'monospace',
+    lineColor:    '#000000',
+    background:   '#ffffff',
+    textMargin:   2,
   });
+
+  return svgEl.outerHTML;
 }
 
 /**
  * Génère le HTML complet du ticket de caisse (format thermique 80mm).
  */
 export function buildReceiptHtml(d: ReceiptData): string {
-  const { sale, shopNom, shopType, devise, qrCodeSvg } = d;
+  const { sale, shopNom, shopType, devise, barcodeSvg } = d;
   const customerNom = d.customerNom ?? sale.customer?.nom ?? sale.customer_nom ?? null;
 
   const date = new Date(sale.created_at).toLocaleString('fr-FR', {
@@ -76,20 +75,19 @@ export function buildReceiptHtml(d: ReceiptData): string {
     </tr>`
   ).join('');
 
-  const remise   = sale.remise_montant  > 0
+  const remise  = sale.remise_montant > 0
     ? `<tr><td>Remise</td><td class="r">&minus;${fmt(sale.remise_montant, devise)}</td></tr>` : '';
-  const tva      = sale.tva_montant     > 0
+  const tva     = sale.tva_montant    > 0
     ? `<tr><td>TVA</td><td class="r">${fmt(sale.tva_montant, devise)}</td></tr>` : '';
-  const monnaie  = sale.monnaie_rendue  > 0
+  const monnaie = sale.monnaie_rendue > 0
     ? `<tr><td>Monnaie rendue</td><td class="r">${fmt(sale.monnaie_rendue, devise)}</td></tr>` : '';
   const clientRow = customerNom
     ? `<tr><td>Client</td><td class="r"><strong>${customerNom}</strong></td></tr>` : '';
 
-  // Section QR code en bas du ticket
-  const qrSection = qrCodeSvg
-    ? `<div class="qr-wrap">
-        <div class="qr-img">${qrCodeSvg}</div>
-        <p class="qr-label">Scanner pour vérifier les détails</p>
+  // Section code-barres
+  const barcodeSection = barcodeSvg
+    ? `<div class="barcode-wrap">
+        ${barcodeSvg}
        </div>`
     : '';
 
@@ -99,13 +97,8 @@ export function buildReceiptHtml(d: ReceiptData): string {
   <meta charset="UTF-8">
   <title>Ticket — ${shopNom}</title>
   <style>
-    /* ── Taille papier thermique ── */
-    @page {
-      size: 80mm auto;
-      margin: 3mm 4mm;
-    }
+    @page { size: 80mm auto; margin: 3mm 4mm; }
 
-    /* ── Reset & base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
@@ -117,7 +110,7 @@ export function buildReceiptHtml(d: ReceiptData): string {
       background: #fff;
     }
 
-    /* ── En-tête boutique ── */
+    /* ── En-tête ── */
     .header {
       text-align: center;
       padding: 4px 0 8px;
@@ -129,32 +122,17 @@ export function buildReceiptHtml(d: ReceiptData): string {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
-      line-height: 1.2;
     }
     .shop-type { font-size: 10px; margin-top: 2px; }
-    .date      { font-size: 9px;  color: #444; margin-top: 3px; }
+    .date      { font-size: 9px; color: #444; margin-top: 3px; }
 
     /* ── Tableau articles ── */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    td {
-      padding: 2px 0;
-      vertical-align: top;
-      font-size: 11px;
-      line-height: 1.35;
-    }
-    td.r {
-      text-align: right;
-      white-space: nowrap;
-      padding-left: 4px;
-    }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 2px 0; vertical-align: top; font-size: 11px; line-height: 1.35; }
+    td.r { text-align: right; white-space: nowrap; padding-left: 4px; }
 
-    /* ── Séparateur ── */
     .sep td { border-top: 1px dashed #000; padding-top: 4px; padding-bottom: 2px; }
 
-    /* ── Ligne total ── */
     .total td {
       font-size: 13px;
       font-weight: 700;
@@ -168,41 +146,29 @@ export function buildReceiptHtml(d: ReceiptData): string {
       margin-top: 10px;
       padding-top: 8px;
       border-top: 1px dashed #000;
-      font-size: 10px;
-      color: #222;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      line-height: 1.5;
-    }
-    .footer .merci {
       font-size: 11px;
       font-weight: 700;
+      color: #111;
+      line-height: 1.6;
     }
 
-    /* ── QR code ── */
-    .qr-wrap {
+    /* ── Code-barres ── */
+    .barcode-wrap {
       margin-top: 10px;
       padding-top: 8px;
       border-top: 1px dashed #000;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
+      justify-content: center;
     }
-    .qr-img svg {
-      width: 100px !important;
-      height: 100px !important;
-      display: block;
-    }
-    .qr-label {
-      font-size: 8px;
-      color: #777;
-      text-align: center;
-      margin-top: 2px;
+    .barcode-wrap svg {
+      width: 100% !important;
+      max-width: 72mm;
+      height: auto !important;
     }
   </style>
 </head>
 <body>
+
   <div class="header">
     <div class="shop-name">${shopNom}</div>
     ${shopType ? `<div class="shop-type">${shopType}</div>` : ''}
@@ -227,17 +193,18 @@ export function buildReceiptHtml(d: ReceiptData): string {
   </table>
 
   <div class="footer">
-    <p class="merci">Merci d'&ecirc;tre pass&eacute; chez ${shopNom}&nbsp;!</p>
-    <p>À bient&ocirc;t !</p>
+    Merci d'&ecirc;tre pass&eacute; chez ${shopNom}&nbsp;!<br>
+    &Agrave; bient&ocirc;t&nbsp;!
   </div>
 
-  ${qrSection}
+  ${barcodeSection}
+
 </body>
 </html>`;
 }
 
 /**
- * Imprime un HTML dans une iframe invisible (sans popup visible).
+ * Imprime un HTML dans une iframe invisible.
  */
 export function printInFrame(html: string): void {
   const iframe = document.createElement('iframe');
@@ -258,5 +225,5 @@ export function printInFrame(html: string): void {
     setTimeout(() => {
       if (document.body.contains(iframe)) document.body.removeChild(iframe);
     }, 1000);
-  }, 250);
+  }, 300);
 }

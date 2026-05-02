@@ -8,7 +8,7 @@ import {
   Search, ShoppingCart, Trash2, Plus, Minus, X,
   Printer, History, Check, Banknote, Smartphone, CreditCard, Package, Receipt, User,
 } from 'lucide-angular';
-import { buildReceiptHtml, buildQrData, generateQrSvg, printInFrame } from './receipt.util';
+import { buildReceiptHtml, generateBarcodeSvg, printInFrame } from './receipt.util';
 import { ProductService } from '../products/product.service';
 import { SaleService } from './sale.service';
 import { ShopService } from '../../shop/shop.service';
@@ -280,18 +280,14 @@ export class SalesComponent implements OnInit {
     this.receiptCustomer.set(null);
   }
 
-  async printReceipt(): Promise<void> {
+  printReceipt(): void {
     const sale = this.lastSale();
     const shop = this.shop();
     if (!sale) return;
 
-    // Génère le QR code contenant : articles, date, total
-    let qrCodeSvg: string | undefined;
-    try {
-      qrCodeSvg = await generateQrSvg(buildQrData(sale, this.devise()));
-    } catch {
-      qrCodeSvg = undefined; // impression sans QR si la génération échoue
-    }
+    // Code-barres CODE128 : articles, date, total — synchrone, hors-ligne
+    let barcodeSvg: string | undefined;
+    try { barcodeSvg = generateBarcodeSvg(sale, this.devise()); } catch { /* sans code-barres */ }
 
     printInFrame(buildReceiptHtml({
       sale,
@@ -299,7 +295,7 @@ export class SalesComponent implements OnInit {
       shopType:    shop?.type_commerce ?? '',
       devise:      this.devise(),
       customerNom: this.receiptCustomer()?.nom ?? null,
-      qrCodeSvg,
+      barcodeSvg,
     }));
   }
 
