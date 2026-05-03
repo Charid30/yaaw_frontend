@@ -45,18 +45,18 @@ html, body {
 
 /* ── Sidebar sombre ───────────────────────── */
 .sidebar-item {
-  @apply flex items-center gap-2.5 px-2 py-2 rounded-xl
-         text-slate-400
-         hover:bg-slate-800/70 hover:text-slate-100
+  @apply flex items-center gap-2.5 px-3 py-2.5 rounded-xl
+         text-slate-500
+         hover:bg-white/5 hover:text-slate-200
          transition-all duration-150 cursor-pointer no-underline;
 }
 
 .sidebar-icon {
-  @apply bg-transparent text-slate-500 transition-all duration-150;
+  @apply bg-transparent text-slate-600 transition-all duration-150;
 }
 
 .sidebar-item:hover .sidebar-icon {
-  @apply bg-slate-700/60 text-slate-200;
+  @apply text-slate-300;
 }
 
 .sidebar-item.sidebar-active {
@@ -64,7 +64,7 @@ html, body {
 }
 
 .sidebar-item.sidebar-active .sidebar-icon {
-  @apply bg-indigo-500/15 text-indigo-400;
+  @apply text-indigo-400;
 }
 
 /* ── Ancienne classe nav-item conservée ──── */
