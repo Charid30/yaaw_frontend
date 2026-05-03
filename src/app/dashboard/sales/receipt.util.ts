@@ -20,9 +20,27 @@ function paymentLabel(method: PaymentMethod | string): string {
 }
 
 /**
+ * Supprime les accents pour éviter les problèmes d'encodage dans les scanners QR.
+ * "Espèces" → "Especes", "Déjeuner" → "Dejeuner"
+ */
+function toAscii(s: string): string {
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+/**
+ * Formate un nombre avec des espaces simples comme séparateurs de milliers.
+ * Évite le narrow-no-break-space de toLocaleString('fr-FR') qui corrompt
+ * certains scanners QR.
+ */
+function fmtN(n: number, devise: string): string {
+  const s = Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return `${s} ${devise}`;
+}
+
+/**
  * Génère un QR code encodant toutes les infos du ticket.
- * Scannable avec n'importe quel téléphone, sans application.
- * Retourne une data URL PNG (async).
+ * Scannable nativement avec n'importe quel téléphone, sans application.
+ * Texte 100 % ASCII pour une compatibilité maximale avec tous les scanners.
  */
 export async function generateQrCode(
   sale: Sale,
@@ -35,31 +53,33 @@ export async function generateQrCode(
   });
 
   const articles = sale.items
-    .map(i => `• ${i.nom_produit} x${i.quantite} = ${i.montant.toLocaleString('fr-FR')} ${devise}`)
+    .map(i => `- ${toAscii(i.nom_produit)} x${i.quantite} = ${fmtN(i.montant, devise)}`)
     .join('\n');
 
-  const clientLigne = sale.customer?.nom ?? sale.customer_nom
-    ? `Client : ${sale.customer?.nom ?? sale.customer_nom}\n`
-    : '';
+  const clientNom = sale.customer?.nom ?? sale.customer_nom ?? null;
 
-  const remiseLigne = sale.remise_montant > 0
-    ? `Remise : -${sale.remise_montant.toLocaleString('fr-FR')} ${devise}\n`
-    : '';
-
-  const data = [
-    `🏪 ${shopNom}`,
-    `📅 ${date}`,
+  const lines: string[] = [
+    `Boutique : ${toAscii(shopNom)}`,
+    `Date     : ${date}`,
     ``,
     articles,
     ``,
-    remiseLigne.trim() ? remiseLigne.trim() : null,
-    `💳 ${paymentLabel(sale.mode_paiement)}`,
-    clientLigne.trim() ? clientLigne.trim() : null,
-    ``,
-    `TOTAL : ${sale.montant_total.toLocaleString('fr-FR')} ${devise}`,
-  ].filter(l => l !== null).join('\n');
+  ];
 
-  return QRCode.toDataURL(data, {
+  if (sale.remise_montant > 0) {
+    lines.push(`Remise   : -${fmtN(sale.remise_montant, devise)}`);
+  }
+
+  lines.push(`Paiement : ${toAscii(paymentLabel(sale.mode_paiement))}`);
+
+  if (clientNom) {
+    lines.push(`Client   : ${toAscii(clientNom)}`);
+  }
+
+  lines.push(``);
+  lines.push(`TOTAL    : ${fmtN(sale.montant_total, devise)}`);
+
+  return QRCode.toDataURL(lines.join('\n'), {
     errorCorrectionLevel: 'M',
     margin: 1,
     width: 200,
