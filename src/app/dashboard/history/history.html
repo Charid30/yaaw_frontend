@@ -1,166 +1,223 @@
 <!-- src/app/dashboard/history/history.html -->
-<div class="p-6 lg:p-8 max-w-6xl mx-auto">
+<div class="p-5 lg:p-6 max-w-6xl mx-auto space-y-4">
 
-  <!-- En-tête -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <!-- ── En-tête ─────────────────────────────────────────── -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
     <div>
-      <h1 class="text-xl font-bold text-slate-900 dark:text-white">Historique des ventes</h1>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{{ total() }} transaction{{ total() > 1 ? 's' : '' }} trouvée{{ total() > 1 ? 's' : '' }}</p>
+      <h1 class="text-base font-bold text-slate-900 dark:text-white">Historique des ventes</h1>
+      <p class="text-xs text-slate-400 mt-0.5">
+        {{ total() }} transaction{{ total() > 1 ? 's' : '' }} trouvée{{ total() > 1 ? 's' : '' }}
+      </p>
     </div>
-    <!-- KPI total page -->
     @if (sales().length > 0) {
-      <div class="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-800/50">
-        <div class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
-          <lucide-icon [img]="icons.TrendingUp" [size]="15" class="text-indigo-600 dark:text-indigo-400" />
+      <div class="flex items-center gap-2.5 px-3.5 py-2 rounded-xl
+                  bg-indigo-50 dark:bg-indigo-950/30
+                  border border-indigo-100 dark:border-indigo-800/50 shrink-0">
+        <div class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-900/50
+                    flex items-center justify-center">
+          <lucide-icon [img]="icons.TrendingUp" [size]="13" class="text-indigo-600 dark:text-indigo-400" />
         </div>
         <div>
-          <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Total affiché</p>
-          <p class="text-sm font-black text-indigo-700 dark:text-indigo-300 tabular-nums">{{ formatPrice(pageTotal()) }}</p>
+          <p class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Total affiché</p>
+          <p class="text-sm font-bold text-indigo-700 dark:text-indigo-300 tabular-nums leading-tight">
+            {{ formatPrice(pageTotal()) }}
+          </p>
         </div>
       </div>
     }
   </div>
 
-  <!-- Filtres -->
-  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 mb-4 space-y-3">
+  <!-- ── Filtres ─────────────────────────────────────────── -->
+  <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
 
-    <!-- Barre de recherche libre -->
-    <div class="relative">
-      <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-        <lucide-icon [img]="icons.Search" [size]="16" />
-      </span>
-      <input type="search" placeholder="Rechercher par produit ou client…"
-             class="input-field search-input"
-             [value]="searchQuery()"
-             (input)="onSearch($any($event.target).value)" />
+    <!-- Recherche -->
+    <div class="px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+      <div class="relative">
+        <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+          <lucide-icon [img]="icons.Search" [size]="14" />
+        </span>
+        <input type="search" placeholder="Rechercher par produit ou client…"
+               class="w-full rounded-xl border border-slate-200 dark:border-slate-700
+                      bg-slate-50 dark:bg-slate-800/50
+                      pl-9 pr-4 py-2 text-sm text-slate-900 dark:text-white
+                      placeholder:text-slate-400
+                      focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-800
+                      focus:ring-2 focus:ring-indigo-500/10 outline-none transition-all"
+               [value]="searchQuery()"
+               (input)="onSearch($any($event.target).value)" />
+      </div>
     </div>
 
-    <!-- Filtres date + paiement -->
-    <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_180px_auto] gap-3 items-end">
-
-      <!-- Date début -->
-      <div>
-        <label class="label-field">Du</label>
-        <input type="date" class="input-field" [ngModel]="dateDebut()" (ngModelChange)="dateDebut.set($event)" />
+    <!-- Filtres date + paiement + actions -->
+    <div class="flex flex-wrap items-end gap-3 px-4 py-3">
+      <div class="flex flex-col gap-1 min-w-[130px]">
+        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Du</label>
+        <input type="date" [ngModel]="dateDebut()" (ngModelChange)="dateDebut.set($event)"
+               class="rounded-lg border border-slate-200 dark:border-slate-700
+                      bg-slate-50 dark:bg-slate-800/50
+                      px-3 py-1.5 text-xs text-slate-900 dark:text-white
+                      focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 outline-none transition-all" />
       </div>
-
-      <!-- Date fin -->
-      <div>
-        <label class="label-field">Au</label>
-        <input type="date" class="input-field" [ngModel]="dateFin()" (ngModelChange)="dateFin.set($event)" />
+      <div class="flex flex-col gap-1 min-w-[130px]">
+        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Au</label>
+        <input type="date" [ngModel]="dateFin()" (ngModelChange)="dateFin.set($event)"
+               class="rounded-lg border border-slate-200 dark:border-slate-700
+                      bg-slate-50 dark:bg-slate-800/50
+                      px-3 py-1.5 text-xs text-slate-900 dark:text-white
+                      focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 outline-none transition-all" />
       </div>
-
-      <!-- Mode paiement -->
-      <div>
-        <label class="label-field">Paiement</label>
-        <select class="input-field" [ngModel]="modePaiement()" (ngModelChange)="modePaiement.set($event)">
+      <div class="flex flex-col gap-1 min-w-[140px]">
+        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Paiement</label>
+        <select [ngModel]="modePaiement()" (ngModelChange)="modePaiement.set($event)"
+                class="rounded-lg border border-slate-200 dark:border-slate-700
+                       bg-slate-50 dark:bg-slate-800/50
+                       px-3 py-1.5 text-xs text-slate-900 dark:text-white
+                       focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 outline-none transition-all">
           <option value="">Tous</option>
           @for (m of paymentMethods; track m.key) {
             <option [value]="m.key">{{ m.label }}</option>
           }
         </select>
       </div>
-
-      <!-- Actions -->
-      <div class="flex gap-2">
+      <div class="flex gap-2 ml-auto">
         <button (click)="applyFilters()"
-                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white
-                       bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold
+                       text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm">
+          <lucide-icon [img]="icons.Filter" [size]="12" />
           Filtrer
         </button>
         <button (click)="resetFilters()"
-                class="px-3 py-2.5 rounded-xl text-sm text-slate-500 border border-slate-200
-                       dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-          <lucide-icon [img]="icons.X" [size]="16" />
+                class="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700
+                       text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+          <lucide-icon [img]="icons.X" [size]="14" />
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Table -->
-  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+  <!-- ── Table ──────────────────────────────────────────── -->
+  <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
 
     @if (loading()) {
-      <div class="flex justify-center py-20">
+      <div class="flex flex-col items-center justify-center py-20 gap-3">
         <div class="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs text-slate-400">Chargement…</p>
       </div>
+
     } @else if (sales().length === 0) {
-      <div class="flex flex-col items-center justify-center py-20 text-slate-400">
-        <lucide-icon [img]="icons.History" [size]="48" class="mb-4 opacity-30" />
-        <p class="font-medium">Aucune vente sur cette période</p>
-        <p class="text-sm mt-1">Modifiez les filtres ou changez la période</p>
+      <div class="flex flex-col items-center justify-center py-20 gap-3 text-center px-6">
+        <div class="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center">
+          <lucide-icon [img]="icons.History" [size]="22" class="text-slate-300 dark:text-slate-600" />
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Aucune vente sur cette période</p>
+          <p class="text-xs text-slate-400 mt-1">Modifiez les filtres ou changez la période</p>
+        </div>
       </div>
+
     } @else {
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-slate-100 dark:border-slate-700 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            <th class="text-left px-5 py-3 font-semibold">Date</th>
-            <th class="text-left px-5 py-3 font-semibold hidden sm:table-cell">Client</th>
-            <th class="text-left px-5 py-3 font-semibold hidden md:table-cell">Articles</th>
-            <th class="text-left px-5 py-3 font-semibold">Paiement</th>
-            <th class="text-right px-5 py-3 font-semibold">Total</th>
-            <th class="px-5 py-3 w-12"></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (sale of sales(); track sale.id) {
-            <tr class="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-              <td class="px-5 py-3.5 text-slate-600 dark:text-slate-300 whitespace-nowrap">{{ formatDate(sale.created_at) }}</td>
-              <td class="px-5 py-3.5 hidden sm:table-cell text-slate-600 dark:text-slate-300">
+      <!-- En-têtes -->
+      <div class="grid grid-cols-12 gap-2 px-5 py-2.5
+                  bg-slate-50/80 dark:bg-slate-800/40
+                  border-b border-slate-100 dark:border-slate-800">
+        <span class="col-span-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</span>
+        <span class="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">Client</span>
+        <span class="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden md:block">Articles</span>
+        <span class="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Paiement</span>
+        <span class="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Total</span>
+        <span class="col-span-1"></span>
+      </div>
+
+      <!-- Lignes -->
+      <div class="divide-y divide-slate-50 dark:divide-slate-800/60">
+        @for (sale of sales(); track sale.id) {
+          <div class="grid grid-cols-12 gap-2 items-center px-5 py-3.5
+                      hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+
+            <!-- Date -->
+            <div class="col-span-3">
+              <p class="text-xs font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                {{ formatDate(sale.created_at) }}
+              </p>
+            </div>
+
+            <!-- Client -->
+            <div class="col-span-2 hidden sm:block min-w-0">
+              <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
                 {{ sale.customer?.nom ?? sale.customer_nom ?? '—' }}
-              </td>
-              <td class="px-5 py-3.5 hidden md:table-cell">
-                <span class="text-xs text-slate-500 dark:text-slate-400">
-                  {{ sale.items.length }} article{{ sale.items.length > 1 ? 's' : '' }}
-                </span>
-              </td>
-              <td class="px-5 py-3.5">
-                <span class="px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="paymentClass(sale.mode_paiement)">
-                  {{ paymentLabel(sale.mode_paiement) }}
-                </span>
-              </td>
-              <td class="px-5 py-3.5 text-right font-semibold text-slate-900 dark:text-white whitespace-nowrap">
+              </p>
+            </div>
+
+            <!-- Articles -->
+            <div class="col-span-2 hidden md:block">
+              <span class="text-xs text-slate-400">
+                {{ sale.items.length }} article{{ sale.items.length > 1 ? 's' : '' }}
+              </span>
+            </div>
+
+            <!-- Mode paiement -->
+            <div class="col-span-2">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                    [ngClass]="paymentClass(sale.mode_paiement)">
+                {{ paymentLabel(sale.mode_paiement) }}
+              </span>
+            </div>
+
+            <!-- Total -->
+            <div class="col-span-2 text-right">
+              <span class="text-sm font-semibold text-slate-900 dark:text-white tabular-nums whitespace-nowrap">
                 {{ formatPrice(sale.montant_total) }}
-              </td>
-              <td class="px-5 py-3.5">
-                <button (click)="openDetail(sale)"
-                        class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-indigo-600 transition-colors">
-                  <lucide-icon [img]="icons.Eye" [size]="15" />
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-        <!-- Total bas de page -->
-        <tfoot>
-          <tr class="border-t-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/80">
-            <td colspan="3" class="px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide hidden md:table-cell">
-              Total page ({{ sales().length }} ventes)
-            </td>
-            <td colspan="2" class="px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide sm:hidden">
-              Total
-            </td>
-            <td class="px-5 py-3 text-right font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap" colspan="2">
-              {{ formatPrice(pageTotal()) }}
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+              </span>
+            </div>
+
+            <!-- Action -->
+            <div class="col-span-1 flex justify-end">
+              <button (click)="openDetail(sale)"
+                      class="w-7 h-7 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/30
+                             text-slate-300 hover:text-indigo-500 transition-colors flex items-center justify-center">
+                <lucide-icon [img]="icons.Eye" [size]="14" />
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Footer total -->
+      <div class="flex items-center justify-between px-5 py-3
+                  border-t border-slate-200 dark:border-slate-700
+                  bg-slate-50/80 dark:bg-slate-800/40">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          Total page · {{ sales().length }} vente{{ sales().length > 1 ? 's' : '' }}
+        </span>
+        <span class="text-sm font-bold text-indigo-600 dark:text-indigo-400 tabular-nums">
+          {{ formatPrice(pageTotal()) }}
+        </span>
+      </div>
 
       <!-- Pagination -->
       @if (totalPages() > 1) {
-        <div class="flex items-center justify-between px-5 py-3 border-t border-slate-100 dark:border-slate-700">
-          <span class="text-xs text-slate-400">Page {{ currentPage() }} / {{ totalPages() }}</span>
+        <div class="flex items-center justify-between px-5 py-3
+                    border-t border-slate-100 dark:border-slate-800">
+          <span class="text-xs text-slate-400">
+            Page <span class="font-semibold text-slate-600 dark:text-slate-300">{{ currentPage() }}</span>
+            sur {{ totalPages() }}
+          </span>
           <div class="flex gap-1">
             <button (click)="prevPage()" [disabled]="currentPage() === 1"
-                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400
-                           hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-30 transition-all">
-              <lucide-icon [img]="icons.ChevronLeft" [size]="16" />
+                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium
+                           border border-slate-200 dark:border-slate-700
+                           text-slate-500 hover:border-indigo-300 hover:text-indigo-600
+                           disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+              <lucide-icon [img]="icons.ChevronLeft" [size]="13" />
+              Préc.
             </button>
             <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
-                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400
-                           hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-30 transition-all">
-              <lucide-icon [img]="icons.ChevronRight" [size]="16" />
+                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium
+                           border border-slate-200 dark:border-slate-700
+                           text-slate-500 hover:border-indigo-300 hover:text-indigo-600
+                           disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+              Suiv.
+              <lucide-icon [img]="icons.ChevronRight" [size]="13" />
             </button>
           </div>
         </div>
@@ -169,72 +226,106 @@
   </div>
 </div>
 
-<!-- Modal détail vente -->
+<!-- ══ Modal détail vente ══════════════════════════════ -->
 @if (selectedSale()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col">
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+       (click)="closeDetail()">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm max-h-[90vh] flex flex-col"
+         (click)="$event.stopPropagation()">
 
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
-        <div>
-          <h2 class="font-semibold text-slate-900 dark:text-white">Détail de la vente</h2>
-          <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(selectedSale()!.created_at) }}</p>
+      <!-- Header modal -->
+      <div class="flex items-center justify-between px-5 py-4
+                  border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+               [ngClass]="{
+                 'bg-emerald-50 text-emerald-600': selectedSale()!.mode_paiement === 'especes',
+                 'bg-orange-50 text-orange-500':   selectedSale()!.mode_paiement === 'orange_money',
+                 'bg-blue-50 text-blue-500':        selectedSale()!.mode_paiement === 'moov_money'
+               }">
+            <lucide-icon [img]="selectedSale()!.mode_paiement === 'especes' ? icons.Banknote : icons.Smartphone"
+                         [size]="15" />
+          </div>
+          <div>
+            <p class="text-sm font-bold text-slate-900 dark:text-white leading-tight">Détail de la vente</p>
+            <p class="text-[11px] text-slate-400">{{ formatDate(selectedSale()!.created_at) }}</p>
+          </div>
         </div>
-        <button (click)="closeDetail()" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-          <lucide-icon [img]="icons.X" [size]="18" />
+        <button (click)="closeDetail()"
+                class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800
+                       flex items-center justify-center transition-colors">
+          <lucide-icon [img]="icons.X" [size]="16" />
         </button>
       </div>
 
-      <!-- Bouton impression -->
-      <div class="px-6 pt-4 pb-0 shrink-0">
+      <!-- Imprimer -->
+      <div class="px-5 pt-3.5 shrink-0">
         <button (click)="printSaleReceipt()"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
-                       bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold
-                       transition-colors">
-          <lucide-icon [img]="icons.Printer" [size]="15" />
+                class="w-full flex items-center justify-center gap-2 py-2 rounded-xl
+                       bg-slate-900 dark:bg-white text-white dark:text-slate-900
+                       text-xs font-semibold hover:opacity-90 transition-opacity">
+          <lucide-icon [img]="icons.Printer" [size]="13" />
           Imprimer le ticket
         </button>
       </div>
 
-      <div class="overflow-y-auto flex-1 px-6 py-4 space-y-4">
+      <!-- Contenu -->
+      <div class="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+
         @if (selectedSale()!.customer?.nom || selectedSale()!.customer_nom) {
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-slate-500">Client</span>
-            <span class="font-medium text-slate-900 dark:text-white">
+          <div class="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800">
+            <span class="text-xs text-slate-400 font-medium">Client</span>
+            <span class="text-sm font-semibold text-slate-900 dark:text-white">
               {{ selectedSale()!.customer?.nom ?? selectedSale()!.customer_nom }}
             </span>
           </div>
         }
 
         <!-- Articles -->
-        <div class="space-y-2">
-          @for (item of selectedSale()!.items; track item.id) {
-            <div class="flex justify-between items-center text-sm py-1.5 border-b border-slate-50 dark:border-slate-800">
-              <div>
-                <p class="font-medium text-slate-900 dark:text-slate-100">{{ item.nom_produit }}</p>
-                <p class="text-xs text-slate-400">{{ formatPrice(item.prix_unitaire) }} × {{ item.quantite }}</p>
+        <div>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Articles</p>
+          <div class="space-y-1.5">
+            @for (item of selectedSale()!.items; track item.id) {
+              <div class="flex items-center justify-between py-2 px-3 rounded-xl
+                          bg-slate-50 dark:bg-slate-800/60">
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">{{ item.nom_produit }}</p>
+                  <p class="text-[10px] text-slate-400 mt-0.5">{{ formatPrice(item.prix_unitaire) }} × {{ item.quantite }}</p>
+                </div>
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-200 tabular-nums ml-3 shrink-0">
+                  {{ formatPrice(item.montant) }}
+                </span>
               </div>
-              <span class="font-semibold text-slate-900 dark:text-white">{{ formatPrice(item.montant) }}</span>
-            </div>
-          }
+            }
+          </div>
         </div>
 
         <!-- Totaux -->
-        <div class="space-y-2 pt-2">
+        <div class="space-y-1.5 pt-1 border-t border-slate-100 dark:border-slate-800">
+          @if (selectedSale()!.remise_montant > 0) {
+            <div class="flex justify-between text-xs text-emerald-600">
+              <span>Remise</span><span class="font-medium">−{{ formatPrice(selectedSale()!.remise_montant) }}</span>
+            </div>
+          }
           @if (selectedSale()!.tva_montant > 0) {
-            <div class="flex justify-between text-sm text-slate-500">
+            <div class="flex justify-between text-xs text-slate-400">
               <span>TVA</span><span>{{ formatPrice(selectedSale()!.tva_montant) }}</span>
             </div>
           }
-          <div class="flex justify-between font-bold text-base text-slate-900 dark:text-white">
-            <span>Total</span><span class="text-indigo-600 dark:text-indigo-400">{{ formatPrice(selectedSale()!.montant_total) }}</span>
+          <div class="flex justify-between items-center py-2 border-t border-slate-100 dark:border-slate-800">
+            <span class="text-sm font-bold text-slate-900 dark:text-white">Total</span>
+            <span class="text-base font-bold text-indigo-600 dark:text-indigo-400 tabular-nums">
+              {{ formatPrice(selectedSale()!.montant_total) }}
+            </span>
           </div>
-          <div class="flex justify-between text-sm text-slate-500">
+          <div class="flex justify-between text-xs text-slate-400">
             <span>{{ paymentLabel(selectedSale()!.mode_paiement) }}</span>
-            <span>{{ formatPrice(selectedSale()!.montant_recu) }}</span>
+            <span class="tabular-nums">{{ formatPrice(selectedSale()!.montant_recu) }}</span>
           </div>
           @if (selectedSale()!.monnaie_rendue > 0) {
-            <div class="flex justify-between text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-              <span>Monnaie rendue</span><span>{{ formatPrice(selectedSale()!.monnaie_rendue) }}</span>
+            <div class="flex justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>Monnaie rendue</span>
+              <span class="tabular-nums">{{ formatPrice(selectedSale()!.monnaie_rendue) }}</span>
             </div>
           }
           @if (selectedSale()!.note) {

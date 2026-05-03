@@ -1,16 +1,16 @@
 <!-- src/app/dashboard/stock/stock.html -->
-<div class="p-4 lg:p-8 max-w-7xl mx-auto space-y-6">
+<div class="p-5 lg:p-6 max-w-7xl mx-auto space-y-4">
 
   <!-- ── Header ─────────────────────────────────────────────── -->
-  <div class="flex items-start justify-between gap-4 flex-wrap">
+  <div class="flex items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Stock</h1>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Gestion des entrées, sorties et ajustements</p>
+      <h1 class="text-base font-bold text-slate-900 dark:text-white">Stock</h1>
+      <p class="text-xs text-slate-400 mt-0.5">Entrées, sorties et ajustements</p>
     </div>
     <button (click)="openHistory()"
-      class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
-             text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition shadow-sm">
-      <lucide-icon [img]="icons.History" [size]="15" />
+      class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
+             text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition shadow-sm">
+      <lucide-icon [img]="icons.History" [size]="14" />
       Historique
     </button>
   </div>
@@ -23,34 +23,60 @@
       }
     </div>
   } @else if (summary(); as s) {
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 mb-3">
-          <lucide-icon [img]="icons.Package" [size]="18" />
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- Produits actifs -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="h-0.5 bg-slate-200 dark:bg-slate-700"></div>
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+              <lucide-icon [img]="icons.Package" [size]="14" class="text-slate-500" />
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Produits actifs</p>
+          </div>
+          <p class="text-xl font-bold text-slate-900 dark:text-white">{{ s.totalProducts }}</p>
         </div>
-        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ s.totalProducts }}</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Produits actifs</p>
       </div>
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-amber-200 dark:border-amber-800/50 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-3">
-          <lucide-icon [img]="icons.ChevronDown" [size]="18" />
+      <!-- Stock faible -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="h-0.5 bg-amber-400"></div>
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
+              <lucide-icon [img]="icons.ChevronDown" [size]="14" class="text-amber-500" />
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Stock faible</p>
+          </div>
+          <p class="text-xl font-bold text-amber-600 dark:text-amber-400">{{ s.lowStock }}</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">≤ 5 unités</p>
         </div>
-        <p class="text-3xl font-bold text-amber-600 dark:text-amber-400">{{ s.lowStock }}</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Stock faible (≤ 5)</p>
       </div>
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-red-200 dark:border-red-800/50 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center text-red-500 dark:text-red-400 mb-3">
-          <lucide-icon [img]="icons.Minus" [size]="18" />
+      <!-- Rupture -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="h-0.5 bg-red-400"></div>
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+              <lucide-icon [img]="icons.Minus" [size]="14" class="text-red-500" />
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Rupture</p>
+          </div>
+          <p class="text-xl font-bold text-red-500 dark:text-red-400">{{ s.outOfStock }}</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">produits épuisés</p>
         </div>
-        <p class="text-3xl font-bold text-red-500 dark:text-red-400">{{ s.outOfStock }}</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Rupture de stock</p>
       </div>
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-indigo-200 dark:border-indigo-800/50 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-3">
-          <lucide-icon [img]="icons.ArrowUpFromLine" [size]="18" />
+      <!-- Valeur stock -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="h-0.5 bg-indigo-500"></div>
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center">
+              <lucide-icon [img]="icons.ArrowUpFromLine" [size]="14" class="text-indigo-600" />
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Valeur vente</p>
+          </div>
+          <p class="text-xl font-bold text-indigo-600 dark:text-indigo-400 truncate">{{ formatPrice(s.saleValue) }}</p>
         </div>
-        <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 truncate">{{ formatPrice(s.saleValue) }}</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Valeur vente totale</p>
       </div>
     </div>
   }
@@ -59,14 +85,14 @@
   <div class="space-y-3">
     <!-- Recherche — pleine largeur -->
     <div class="relative">
-      <span class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center text-slate-400 pointer-events-none">
-        <lucide-icon [img]="icons.Search" [size]="18" />
+      <span class="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center text-slate-400 pointer-events-none">
+        <lucide-icon [img]="icons.Search" [size]="14" />
       </span>
       <input type="text" placeholder="Rechercher un produit par nom…"
         [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
-        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800
-               pl-11 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400
-               focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition shadow-sm">
+        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900
+               pl-9 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400
+               focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 outline-none transition shadow-sm">
     </div>
     <!-- Tabs filtre stock -->
     <div class="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 gap-1 w-fit">
@@ -82,7 +108,7 @@
   </div>
 
   <!-- ── Table produits ─────────────────────────────────────── -->
-  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
 
     @if (loadingSummary()) {
       <div class="flex items-center justify-center py-16">
@@ -97,63 +123,58 @@
     } @else {
 
       <!-- Desktop -->
-      <div class="hidden md:block overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="border-b border-slate-100 dark:border-slate-700">
-              <th class="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-6 py-3">Produit</th>
-              <th class="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-4 py-3">Catégorie</th>
-              <th class="text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-4 py-3">Stock</th>
-              <th class="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-4 py-3">Prix vente</th>
-              <th class="text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
-            @for (product of filteredProducts(); track product.id) {
-              <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                <td class="px-6 py-4">
-                  <p class="font-medium text-slate-900 dark:text-white text-sm">{{ product.nom }}</p>
-                  <p class="text-xs text-slate-400">{{ product.unite }}</p>
-                </td>
-                <td class="px-4 py-4">
-                  @if (product.categorie) {
-                    <span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-lg"
-                      [style.background]="product.categorie.couleur + '20'"
-                      [style.color]="product.categorie.couleur">
-                      {{ product.categorie.icone }} {{ product.categorie.nom }}
-                    </span>
-                  } @else {
-                    <span class="text-xs text-slate-400">—</span>
-                  }
-                </td>
-                <td class="px-4 py-4 text-center">
-                  <span class="inline-flex items-center justify-center min-w-[3rem] px-3 py-1 rounded-xl text-sm font-bold border" [class]="stockBadge(product.stock_qty)">
-                    {{ product.stock_qty }}
-                  </span>
-                </td>
-                <td class="px-4 py-4 text-right">
-                  <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ formatPrice(product.prix) }}</span>
-                </td>
-                <td class="px-4 py-4">
-                  <div class="flex items-center justify-center gap-2">
-                    <button (click)="openModal(product, 'entree')" title="Entrée de stock"
-                      class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition flex items-center justify-center">
-                      <lucide-icon [img]="icons.ArrowDownToLine" [size]="14" />
-                    </button>
-                    <button (click)="openModal(product, 'sortie')" title="Sortie de stock" [disabled]="product.stock_qty === 0"
-                      class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 transition flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed">
-                      <lucide-icon [img]="icons.ArrowUpFromLine" [size]="14" />
-                    </button>
-                    <button (click)="openModal(product, 'ajustement')" title="Ajuster le stock"
-                      class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 transition flex items-center justify-center">
-                      <lucide-icon [img]="icons.SlidersHorizontal" [size]="14" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <div class="hidden md:block">
+        <!-- Header row -->
+        <div class="grid grid-cols-12 gap-4 px-5 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
+          <div class="col-span-4">Produit</div>
+          <div class="col-span-3">Catégorie</div>
+          <div class="col-span-2 text-center">Stock</div>
+          <div class="col-span-2 text-right">Prix vente</div>
+          <div class="col-span-1 text-center">Actions</div>
+        </div>
+        @for (product of filteredProducts(); track product.id) {
+          <div class="grid grid-cols-12 gap-4 items-center px-5 py-3.5 border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors last:border-0">
+            <div class="col-span-4 min-w-0">
+              <p class="font-medium text-sm text-slate-900 dark:text-slate-100 truncate">{{ product.nom }}</p>
+              <p class="text-xs text-slate-400 mt-0.5">{{ product.unite }}</p>
+            </div>
+            <div class="col-span-3">
+              @if (product.categorie) {
+                <span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-lg"
+                  [style.background]="product.categorie.couleur + '20'"
+                  [style.color]="product.categorie.couleur">
+                  {{ product.categorie.nom }}
+                </span>
+              } @else {
+                <span class="text-xs text-slate-400">—</span>
+              }
+            </div>
+            <div class="col-span-2 flex justify-center">
+              <span class="inline-flex items-center justify-center min-w-[2.5rem] px-2.5 py-1 rounded-lg text-xs font-bold border" [class]="stockBadge(product.stock_qty)">
+                {{ product.stock_qty }}
+              </span>
+            </div>
+            <div class="col-span-2 text-right">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ formatPrice(product.prix) }}</span>
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center justify-center gap-1">
+                <button (click)="openModal(product, 'entree')" title="Entrée"
+                  class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition flex items-center justify-center">
+                  <lucide-icon [img]="icons.ArrowDownToLine" [size]="13" />
+                </button>
+                <button (click)="openModal(product, 'sortie')" title="Sortie" [disabled]="product.stock_qty === 0"
+                  class="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-950/30 text-red-500 dark:text-red-400 hover:bg-red-100 transition flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed">
+                  <lucide-icon [img]="icons.ArrowUpFromLine" [size]="13" />
+                </button>
+                <button (click)="openModal(product, 'ajustement')" title="Ajuster"
+                  class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-950/30 text-amber-500 dark:text-amber-400 hover:bg-amber-100 transition flex items-center justify-center">
+                  <lucide-icon [img]="icons.SlidersHorizontal" [size]="13" />
+                </button>
+              </div>
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Mobile -->

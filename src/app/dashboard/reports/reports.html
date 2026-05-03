@@ -1,29 +1,29 @@
 <!-- src/app/dashboard/reports/reports.html -->
-<div class="p-4 lg:p-8 max-w-7xl mx-auto space-y-6">
+<div class="p-5 lg:p-6 max-w-7xl mx-auto space-y-4">
 
   <!-- ── Header ─────────────────────────────────────────────── -->
-  <div class="flex items-start justify-between flex-wrap gap-3">
+  <div class="flex items-center justify-between flex-wrap gap-3">
     <div>
-      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Rapports</h1>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Statistiques et analyses de votre activité</p>
+      <h1 class="text-base font-bold text-slate-900 dark:text-white">Rapports</h1>
+      <p class="text-xs text-slate-400 mt-0.5">Statistiques et analyses de votre activité</p>
     </div>
     <div class="flex items-center gap-2 print-reports-hide">
       <button (click)="loadAll()"
-        class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
-               text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition shadow-sm">
-        <lucide-icon [img]="icons.RefreshCw" [size]="14" [class]="loading() ? 'animate-spin' : ''" />
+        class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
+               text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition shadow-sm">
+        <lucide-icon [img]="icons.RefreshCw" [size]="13" [class]="loading() ? 'animate-spin' : ''" />
         Actualiser
       </button>
       <button onclick="window.print()"
-        class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
-               text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition shadow-sm">
-        <lucide-icon [img]="icons.Receipt" [size]="14" />
+        class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
+               text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition shadow-sm">
+        <lucide-icon [img]="icons.Receipt" [size]="13" />
         Imprimer
       </button>
       <button (click)="exportPDF()"
-        class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700
+        class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700
                text-sm font-semibold text-white transition shadow-sm">
-        <lucide-icon [img]="icons.Download" [size]="14" />
+        <lucide-icon [img]="icons.Download" [size]="13" />
         Exporter PDF
       </button>
     </div>
@@ -37,49 +37,73 @@
       }
     </div>
   } @else if (kpis(); as k) {
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
 
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-3">
-          <lucide-icon [img]="icons.TrendingUp" [size]="18" />
+      <!-- CA aujourd'hui -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="h-0.5 bg-indigo-500"></div>
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center">
+              <lucide-icon [img]="icons.TrendingUp" [size]="13" class="text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Aujourd'hui</p>
+          </div>
+          <p class="text-xl font-bold text-slate-900 dark:text-white truncate">{{ formatPrice(k.caAujourdhui) }}</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">{{ k.ventesAujourdhui }} vente(s)</p>
         </div>
-        <p class="text-2xl font-bold text-slate-900 dark:text-white truncate">{{ formatPrice(k.caAujourdhui) }}</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">CA aujourd'hui</p>
-        <p class="text-xs text-slate-400 mt-0.5">{{ k.ventesAujourdhui }} vente(s)</p>
       </div>
 
-      <div class="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl p-5 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white mb-3">
-          <lucide-icon [img]="icons.BarChart2" [size]="18" />
+      <!-- CA ce mois -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="h-0.5 bg-violet-500"></div>
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center">
+              <lucide-icon [img]="icons.BarChart2" [size]="13" class="text-violet-600 dark:text-violet-400" />
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Ce mois</p>
+          </div>
+          <p class="text-xl font-bold text-slate-900 dark:text-white truncate">{{ formatPrice(k.caMois) }}</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">{{ k.ventesMois }} vente(s)</p>
         </div>
-        <p class="text-2xl font-bold text-white truncate">{{ formatPrice(k.caMois) }}</p>
-        <p class="text-sm text-indigo-100 mt-0.5">CA ce mois</p>
-        <p class="text-xs text-indigo-200 mt-0.5">{{ k.ventesMois }} vente(s)</p>
       </div>
 
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3">
-          <lucide-icon [img]="icons.Receipt" [size]="18" />
+      <!-- Ticket moyen -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="h-0.5 bg-emerald-500"></div>
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
+              <lucide-icon [img]="icons.Receipt" [size]="13" class="text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Ticket moyen</p>
+          </div>
+          <p class="text-xl font-bold text-slate-900 dark:text-white truncate">{{ formatPrice(k.ticketMoyen) }}</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">ce mois</p>
         </div>
-        <p class="text-2xl font-bold text-slate-900 dark:text-white truncate">{{ formatPrice(k.ticketMoyen) }}</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Ticket moyen</p>
-        <p class="text-xs text-slate-400 mt-0.5">ce mois</p>
       </div>
 
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-3">
-          <lucide-icon [img]="icons.Trophy" [size]="18" />
+      <!-- Total cumulé -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="h-0.5 bg-amber-400"></div>
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
+              <lucide-icon [img]="icons.Trophy" [size]="13" class="text-amber-600 dark:text-amber-400" />
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total cumulé</p>
+          </div>
+          <p class="text-xl font-bold text-slate-900 dark:text-white truncate">{{ formatPrice(k.caTotal) }}</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">{{ k.ventesTotal }} vente(s)</p>
         </div>
-        <p class="text-2xl font-bold text-slate-900 dark:text-white truncate">{{ formatPrice(k.caTotal) }}</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Total cumulé</p>
-        <p class="text-xs text-slate-400 mt-0.5">{{ k.ventesTotal }} vente(s)</p>
       </div>
 
     </div>
   }
 
   <!-- ── Graphique CA ───────────────────────────────────────── -->
-  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+  <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5">
     <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
       <div>
         <h2 class="text-base font-bold text-slate-900 dark:text-white">Évolution du chiffre d'affaires</h2>
@@ -141,7 +165,7 @@
   <div class="grid lg:grid-cols-2 gap-6">
 
     <!-- Top produits -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5">
       <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div class="flex items-center gap-2">
           <lucide-icon [img]="icons.Trophy" [size]="16" class="text-amber-500" />
@@ -187,7 +211,7 @@
     </div>
 
     <!-- Modes de paiement -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5">
       <div class="flex items-center gap-2 mb-4">
         <lucide-icon [img]="icons.CreditCard" [size]="16" class="text-slate-400" />
         <h2 class="text-base font-bold text-slate-900 dark:text-white">Modes de paiement</h2>
@@ -229,7 +253,7 @@
   </div>
 
   <!-- ── Ventes récentes ────────────────────────────────────── -->
-  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
     <div class="flex items-center gap-2 px-5 py-4 border-b border-slate-100 dark:border-slate-700/50">
       <lucide-icon [img]="icons.Receipt" [size]="16" class="text-slate-400" />
       <h2 class="text-base font-bold text-slate-900 dark:text-white">Dernières ventes</h2>
