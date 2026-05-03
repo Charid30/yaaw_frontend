@@ -1,28 +1,27 @@
-<!-- ══════════════════════════════════════════════════
-     CAISSE — Layout split professionnel
-══════════════════════════════════════════════════ -->
-<div class="flex h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)] overflow-hidden">
+<!-- ══════════════════════════════════════════
+     CAISSE — POS Layout
+══════════════════════════════════════════ -->
+<div class="flex h-[calc(100vh-56px)] overflow-hidden bg-slate-50 dark:bg-[#0a0c12]">
 
-  <!-- ════════════════════════════════════════
+  <!-- ════════════════════════════
        GAUCHE — Catalogue
-  ════════════════════════════════════════ -->
-  <div class="flex flex-col flex-1 min-w-0 overflow-hidden bg-slate-50 dark:bg-slate-950">
+  ════════════════════════════ -->
+  <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
 
-    <!-- Barre supérieure du catalogue -->
-    <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-5 py-4 shrink-0 space-y-3">
+    <!-- Top bar -->
+    <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800
+                px-5 py-3.5 shrink-0 space-y-3">
 
-      <!-- Titre + bouton historique -->
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-sm font-bold text-slate-900 dark:text-white">Catalogue</h2>
-          <p class="text-xs text-slate-400 mt-0.5">{{ filteredProducts().length }} produit(s)</p>
+          <h2 class="text-sm font-semibold text-slate-900 dark:text-white">Catalogue</h2>
+          <p class="text-[11px] text-slate-400 mt-0.5">{{ filteredProducts().length }} produit(s) disponible(s)</p>
         </div>
         <button (click)="openHistory()"
-                class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
                        border border-slate-200 dark:border-slate-700
                        text-slate-600 dark:text-slate-300
-                       bg-white dark:bg-slate-800
-                       hover:border-indigo-300 hover:text-indigo-600 transition-all">
+                       hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
@@ -33,36 +32,33 @@
       <!-- Recherche -->
       <div class="relative">
         <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-          <lucide-icon [img]="icons.Search" [size]="15" />
+          <lucide-icon [img]="icons.Search" [size]="14" />
         </span>
         <input type="search" placeholder="Rechercher un produit…"
                class="w-full rounded-xl border border-slate-200 dark:border-slate-700
                       bg-slate-50 dark:bg-slate-800/60
-                      pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white
+                      pl-9 pr-4 py-2 text-sm text-slate-900 dark:text-white
                       placeholder:text-slate-400
-                      focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800
-                      focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                      focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-800
+                      focus:ring-2 focus:ring-indigo-500/15 outline-none transition-all"
                [value]="searchQuery()"
                (input)="onSearch($any($event.target).value)" />
       </div>
 
-      <!-- Filtres catégories -->
-      <div class="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+      <!-- Catégories -->
+      <div class="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
         <button (click)="setCategory('')"
-                class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border"
+                class="shrink-0 px-3 py-1 rounded-lg text-xs font-semibold transition-all"
                 [ngClass]="activeCategory() === ''
-                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-500/30'
-                  : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:text-indigo-600'">
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'">
           Tous
         </button>
         @for (cat of categories(); track cat.id) {
           <button (click)="setCategory(cat.id)"
-                  class="shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border"
-                  [ngClass]="activeCategory() === cat.id
-                    ? 'text-white border-transparent shadow-sm'
-                    : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300'"
-                  [style.background-color]="activeCategory() === cat.id ? cat.couleur : ''"
-                  [style.border-color]="activeCategory() === cat.id ? cat.couleur : ''">
+                  class="shrink-0 px-3 py-1 rounded-lg text-xs font-semibold transition-all"
+                  [ngClass]="activeCategory() === cat.id ? 'text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'"
+                  [style.background-color]="activeCategory() === cat.id ? cat.couleur : ''">
             {{ cat.nom }}
           </button>
         }
@@ -70,65 +66,65 @@
     </div>
 
     <!-- Grille produits -->
-    <div class="flex-1 overflow-y-auto p-5">
+    <div class="flex-1 overflow-y-auto p-4">
       @if (loadingProducts()) {
-        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
           @for (_ of [1,2,3,4,5,6,7,8]; track $index) {
-            <div class="h-32 rounded-2xl bg-white dark:bg-slate-800 animate-pulse border border-slate-100 dark:border-slate-700"></div>
+            <div class="h-36 rounded-2xl bg-white dark:bg-slate-800 animate-pulse border border-slate-100 dark:border-slate-700"></div>
           }
         </div>
       } @else if (filteredProducts().length === 0) {
-        <div class="flex flex-col items-center justify-center h-full text-center py-10 gap-3">
-          <div class="w-16 h-16 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-sm">
-            <lucide-icon [img]="icons.Package" [size]="26" class="text-slate-300 dark:text-slate-600" />
+        <div class="flex flex-col items-center justify-center h-full text-center gap-3 py-16">
+          <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+            <lucide-icon [img]="icons.Package" [size]="22" class="text-slate-300 dark:text-slate-600" />
           </div>
           <div>
-            <p class="font-bold text-slate-600 dark:text-slate-300 text-sm">Aucun produit</p>
+            <p class="font-semibold text-slate-600 dark:text-slate-300 text-sm">Aucun produit trouvé</p>
             <p class="text-xs text-slate-400 mt-1">Modifiez votre recherche ou vos filtres</p>
           </div>
         </div>
       } @else {
-        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
           @for (product of filteredProducts(); track product.id) {
             <button type="button"
                     (click)="addToCart(product)"
                     [disabled]="product.stock_qty <= 0"
-                    class="relative flex flex-col text-left rounded-2xl border-2 transition-all duration-150
-                           disabled:opacity-40 disabled:cursor-not-allowed
-                           overflow-hidden group"
+                    class="relative flex flex-col text-left rounded-2xl border-2 overflow-hidden
+                           transition-all duration-150 group
+                           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none
+                           hover:-translate-y-0.5 hover:shadow-md"
                     [ngClass]="cartQty(product.id) > 0
-                      ? 'border-indigo-400 dark:border-indigo-500 shadow-md shadow-indigo-500/10 bg-white dark:bg-slate-800'
-                      : 'border-transparent bg-white dark:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-md shadow-sm'">
+                      ? 'border-indigo-400 dark:border-indigo-500 bg-white dark:bg-slate-800 shadow-md shadow-indigo-100 dark:shadow-indigo-900/20'
+                      : 'border-transparent bg-white dark:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-600 shadow-sm'">
 
-              <!-- Bande couleur catégorie en haut -->
-              <div class="h-1.5 w-full shrink-0"
+              <!-- Strip couleur catégorie -->
+              <div class="h-1 w-full shrink-0"
                    [style.background-color]="product.categorie?.couleur ?? '#6366f1'"></div>
 
-              <div class="p-4 flex flex-col flex-1">
-                <!-- Icône + badge panier -->
-                <div class="flex items-start justify-between mb-3">
+              <div class="p-3.5 flex flex-col flex-1">
+                <div class="flex items-start justify-between mb-2.5">
                   <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                       [style.background-color]="(product.categorie?.couleur ?? '#6366f1') + '18'">
-                    <lucide-icon [img]="icons.Package" [size]="17" [style.color]="product.categorie?.couleur ?? '#6366f1'" />
+                       [style.background-color]="(product.categorie?.couleur ?? '#6366f1') + '15'">
+                    <lucide-icon [img]="icons.Package" [size]="16"
+                                 [style.color]="product.categorie?.couleur ?? '#6366f1'" />
                   </div>
                   @if (cartQty(product.id) > 0) {
-                    <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shadow-sm">
+                    <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold
+                                 flex items-center justify-center shadow-sm">
                       {{ cartQty(product.id) }}
                     </span>
                   }
                 </div>
 
-                <!-- Nom -->
-                <p class="text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug line-clamp-2 flex-1 mb-2">
+                <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2 flex-1 mb-2.5">
                   {{ product.nom }}
                 </p>
 
-                <!-- Prix + stock -->
                 <div class="flex items-end justify-between gap-1">
                   <p class="text-sm font-bold text-indigo-600 dark:text-indigo-400 leading-none">
                     {{ formatPrice(product.prix) }}
                   </p>
-                  <p class="text-[10px] font-semibold shrink-0"
+                  <p class="text-[10px] shrink-0 font-medium"
                      [ngClass]="product.stock_qty <= 0 ? 'text-red-500'
                                : product.stock_qty <= 5 ? 'text-amber-500'
                                : 'text-slate-400'">
@@ -144,79 +140,80 @@
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════
-       DROITE — Panier & Paiement
-  ════════════════════════════════════════ -->
-  <div class="w-80 lg:w-96 flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shrink-0">
+  <!-- ════════════════════════════
+       DROITE — Panier
+  ════════════════════════════ -->
+  <div class="w-[340px] lg:w-[380px] flex flex-col
+              bg-white dark:bg-slate-900
+              border-l border-slate-200 dark:border-slate-800 shrink-0">
 
-    <!-- En-tête panier -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+    <!-- Header panier -->
+    <div class="flex items-center justify-between px-5 py-4
+                border-b border-slate-100 dark:border-slate-800 shrink-0">
       <div class="flex items-center gap-2">
-        <lucide-icon [img]="icons.ShoppingCart" [size]="15" class="text-indigo-600" />
-        <span class="font-bold text-slate-900 dark:text-white text-sm">Panier</span>
+        <lucide-icon [img]="icons.ShoppingCart" [size]="16" class="text-indigo-500" />
+        <span class="font-semibold text-slate-900 dark:text-white text-sm">Panier</span>
         @if (cartItemCount() > 0) {
-          <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">
+          <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold
+                       flex items-center justify-center">
             {{ cartItemCount() }}
           </span>
         }
       </div>
       @if (cart().length > 0) {
-        <button (click)="clearCart()" class="text-xs font-semibold text-slate-400 hover:text-red-500 transition-colors">
+        <button (click)="clearCart()"
+                class="text-xs font-medium text-slate-400 hover:text-red-500 transition-colors">
           Vider
         </button>
       }
     </div>
 
-    <!-- ── ARTICLES (zone scrollable) ── -->
+    <!-- Articles -->
     <div class="overflow-y-auto border-b border-slate-100 dark:border-slate-800"
-         style="max-height: 280px; min-height: 80px;">
+         style="max-height: 260px; min-height: 72px;">
+
       @if (cart().length === 0) {
-        <div class="flex flex-col items-center justify-center py-8 text-center px-4">
-          <lucide-icon [img]="icons.ShoppingCart" [size]="28" class="text-slate-200 dark:text-slate-700 mb-2" />
+        <div class="flex flex-col items-center justify-center py-8 gap-2 text-center px-4">
+          <lucide-icon [img]="icons.ShoppingCart" [size]="28" class="text-slate-200 dark:text-slate-700" />
           <p class="text-xs text-slate-400 font-medium">Sélectionnez des produits</p>
         </div>
       } @else {
         <div class="p-3 space-y-2">
           @for (item of cart(); track item.product.id) {
-            <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl
+            <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl
                         bg-slate-50 dark:bg-slate-800/60
                         border border-slate-100 dark:border-slate-700">
 
-              <!-- Pastille couleur catégorie -->
-              <div class="w-2 h-8 rounded-full shrink-0"
+              <div class="w-1.5 h-8 rounded-full shrink-0"
                    [style.background-color]="item.product.categorie?.couleur ?? '#6366f1'"></div>
 
-              <!-- Nom + prix unitaire -->
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate leading-tight">
+                <p class="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
                   {{ item.product.nom }}
                 </p>
-                <p class="text-xs text-slate-400 mt-0.5">{{ formatPrice(item.product.prix) }} / unité</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">{{ formatPrice(item.product.prix) }} / unité</p>
               </div>
 
-              <!-- Contrôles qté -->
-              <div class="flex items-center gap-1.5 shrink-0">
+              <div class="flex items-center gap-1 shrink-0">
                 <button (click)="updateQty(item.product.id, -1)"
                         class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600
-                               flex items-center justify-center text-sm font-bold text-slate-500
-                               hover:border-red-300 hover:text-red-500 transition-all">−</button>
-                <span class="w-6 text-center text-sm font-bold text-slate-900 dark:text-white tabular-nums">{{ item.quantity }}</span>
+                               flex items-center justify-center text-sm text-slate-500
+                               hover:border-red-300 hover:text-red-500 transition-all font-bold">−</button>
+                <span class="w-5 text-center text-xs font-bold text-slate-900 dark:text-white tabular-nums">{{ item.quantity }}</span>
                 <button (click)="updateQty(item.product.id, 1)"
                         [disabled]="item.quantity >= item.product.stock_qty"
                         class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600
-                               flex items-center justify-center text-sm font-bold text-slate-500
-                               hover:border-indigo-300 hover:text-indigo-600 transition-all disabled:opacity-30">+</button>
+                               flex items-center justify-center text-sm text-slate-500
+                               hover:border-indigo-300 hover:text-indigo-600 transition-all disabled:opacity-30 font-bold">+</button>
               </div>
 
-              <!-- Sous-total ligne -->
-              <p class="text-sm font-bold text-slate-800 dark:text-slate-100 tabular-nums shrink-0 min-w-[72px] text-right">
+              <p class="text-xs font-semibold text-slate-700 dark:text-slate-200 tabular-nums shrink-0 min-w-[60px] text-right">
                 {{ formatPrice(item.product.prix * item.quantity) }}
               </p>
 
-              <!-- Supprimer -->
               <button (click)="updateQty(item.product.id, -item.quantity)"
-                      class="text-slate-300 hover:text-red-500 transition-colors shrink-0">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                      class="text-slate-300 hover:text-red-400 transition-colors shrink-0 ml-0.5">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
               </button>
@@ -226,23 +223,23 @@
       }
     </div>
 
-    <!-- ── TOTAUX + PAIEMENT (zone fixe) ── -->
-    <div class="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+    <!-- Paramètres + Paiement -->
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
 
-      <!-- Client + Remise côte à côte -->
+      <!-- Client + Remise -->
       <div class="grid grid-cols-2 gap-2">
-        <!-- Client -->
         <div>
           @if (selectedCustomer()) {
-            <div class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-indigo-50 border border-indigo-200 dark:bg-indigo-950/30 dark:border-indigo-800">
+            <div class="flex items-center justify-between px-3 py-2 rounded-xl
+                        bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800">
               <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-300 truncate">{{ selectedCustomer()!.nom }}</span>
-              <button (click)="clearCustomer()" class="text-indigo-400 hover:text-red-500 ml-1 text-sm leading-none font-bold">&times;</button>
+              <button (click)="clearCustomer()" class="text-indigo-400 hover:text-red-500 ml-1 font-bold text-sm leading-none">&times;</button>
             </div>
           } @else {
             <div class="relative">
               <input type="text" placeholder="Client…"
-                     class="w-full rounded-lg border border-slate-200 dark:border-slate-700
-                            bg-slate-50 dark:bg-slate-800/50 px-2.5 py-2 text-xs
+                     class="w-full rounded-xl border border-slate-200 dark:border-slate-700
+                            bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-xs
                             text-slate-900 dark:text-white placeholder:text-slate-400
                             focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 outline-none transition-all"
                      [ngModel]="customerSearch()"
@@ -250,10 +247,12 @@
                      (focus)="showCustomerDrop.set(true)"
                      (blur)="$any($event.relatedTarget)?.closest('.customer-drop') ? null : showCustomerDrop.set(false)" />
               @if (showCustomerDrop() && filteredCustomers().length > 0) {
-                <div class="customer-drop absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-20 overflow-hidden">
+                <div class="customer-drop absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800
+                            border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-20 overflow-hidden">
                   @for (c of filteredCustomers(); track c.id) {
                     <button type="button" (mousedown)="selectCustomer(c)"
-                            class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-slate-900 dark:text-white transition-colors font-medium">
+                            class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-950/30
+                                   text-slate-900 dark:text-white transition-colors font-medium">
                       {{ c.nom }}
                       @if (c.telephone) { <span class="text-slate-400 ml-1">{{ c.telephone }}</span> }
                     </button>
@@ -265,8 +264,8 @@
         </div>
 
         <!-- Remise -->
-        <div class="flex items-center gap-1 px-2.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-          <div class="flex rounded overflow-hidden border border-slate-200 dark:border-slate-600 shrink-0">
+        <div class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+          <div class="flex rounded-lg overflow-hidden border border-slate-200 dark:border-slate-600 shrink-0">
             <button type="button" (click)="discountType.set('percent'); discountValue.set(0)"
                     class="px-1.5 py-0.5 text-[10px] font-bold transition-colors"
                     [ngClass]="discountType() === 'percent' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-slate-700 text-slate-500'">%</button>
@@ -274,22 +273,23 @@
                     class="px-1.5 py-0.5 text-[10px] font-bold transition-colors"
                     [ngClass]="discountType() === 'fixed' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-slate-700 text-slate-500'">F</button>
           </div>
-          <input type="number" min="0" [ngModel]="discountValue()" (ngModelChange)="discountValue.set(+$event || 0)"
+          <input type="number" min="0"
+                 [ngModel]="discountValue()" (ngModelChange)="discountValue.set(+$event || 0)"
                  placeholder="0"
                  class="flex-1 min-w-0 bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-100 outline-none text-right" />
         </div>
       </div>
 
       <!-- Totaux -->
-      <div class="space-y-1 py-2 border-t border-slate-100 dark:border-slate-800">
+      <div class="space-y-1.5 py-3 border-t border-b border-slate-100 dark:border-slate-800">
         <div class="flex justify-between text-xs text-slate-400">
           <span>Sous-total</span>
           <span class="font-medium tabular-nums">{{ formatPrice(cartTotal()) }}</span>
         </div>
         @if (discountAmount() > 0) {
-          <div class="flex justify-between text-xs text-emerald-600">
+          <div class="flex justify-between text-xs text-emerald-600 dark:text-emerald-400">
             <span>Remise</span>
-            <span class="font-semibold tabular-nums">−{{ formatPrice(discountAmount()) }}</span>
+            <span class="font-semibold tabular-nums">− {{ formatPrice(discountAmount()) }}</span>
           </div>
         }
         @if (tvaAmount() > 0) {
@@ -298,55 +298,66 @@
             <span class="font-medium tabular-nums">{{ formatPrice(tvaAmount()) }}</span>
           </div>
         }
-        <div class="flex justify-between items-center pt-1.5 border-t border-slate-200 dark:border-slate-700">
+        <div class="flex justify-between items-center pt-1">
           <span class="text-sm font-bold text-slate-900 dark:text-white">Total</span>
-          <span class="text-lg font-black text-indigo-600 dark:text-indigo-400 tabular-nums">{{ formatPrice(grandTotal()) }}</span>
+          <span class="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{{ formatPrice(grandTotal()) }}</span>
         </div>
       </div>
 
-      <!-- Paiement -->
+      <!-- Mode de paiement -->
       <div>
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Paiement</p>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Mode de paiement</p>
         <div class="grid grid-cols-3 gap-2">
           @for (method of paymentMethods; track method.key) {
             <button type="button" (click)="paymentMethod.set(method.key)"
-                    class="flex flex-col items-center gap-1 py-2.5 rounded-xl border-2 text-[10px] font-bold transition-all"
+                    class="flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-semibold transition-all"
                     [ngClass]="paymentMethod() === method.key
-                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:border-indigo-400 dark:text-indigo-300'
-                      : 'border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 hover:border-slate-300'">
-              <lucide-icon [img]="method.key === 'especes' ? icons.Banknote : icons.Smartphone" [size]="15" />
+                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800'">
+              <lucide-icon [img]="method.key === 'especes' ? icons.Banknote : icons.Smartphone" [size]="18" />
               {{ method.label }}
             </button>
           }
         </div>
       </div>
 
-      <!-- Montant reçu -->
+      <!-- Montant reçu (espèces) -->
       @if (paymentMethod() === 'especes') {
         <div>
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Montant reçu ({{ devise() }})</p>
-          <input type="number" [ngModel]="amountReceived()" (ngModelChange)="amountReceived.set($event)"
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+            Montant reçu ({{ devise() }})
+          </p>
+          <input type="number"
+                 [ngModel]="amountReceived()" (ngModelChange)="amountReceived.set($event)"
                  [placeholder]="grandTotal().toString()" min="0"
-                 class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50
-                        px-4 py-2.5 text-center text-base font-bold text-slate-900 dark:text-white
-                        placeholder:text-slate-300 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 transition-all" />
+                 class="w-full rounded-xl border border-slate-200 dark:border-slate-700
+                        bg-slate-50 dark:bg-slate-800/50
+                        px-4 py-3 text-center text-base font-bold text-slate-900 dark:text-white
+                        placeholder:text-slate-300 outline-none
+                        focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 transition-all" />
           @if ((amountReceived() ?? 0) >= grandTotal() && amountReceived() !== null) {
-            <div class="mt-2 flex justify-between items-center px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800">
-              <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Monnaie</span>
+            <div class="mt-2 flex justify-between items-center px-3 py-2 rounded-xl
+                        bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+              <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Monnaie à rendre</span>
               <span class="text-sm font-bold text-emerald-700 dark:text-emerald-400 tabular-nums">{{ formatPrice(change()) }}</span>
             </div>
           }
         </div>
       } @else {
         <div class="px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-center">
-          <p class="text-xs text-slate-400 font-medium">{{ paymentMethod() === 'orange_money' ? 'Orange Money' : 'Moov Money' }}</p>
-          <p class="text-lg font-black text-indigo-600 dark:text-indigo-400 tabular-nums mt-0.5">{{ formatPrice(grandTotal()) }}</p>
+          <p class="text-xs text-slate-400 font-medium">
+            {{ paymentMethod() === 'orange_money' ? 'Orange Money' : 'Moov Money' }}
+          </p>
+          <p class="text-lg font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
+            {{ formatPrice(grandTotal()) }}
+          </p>
         </div>
       }
 
       <!-- Erreur -->
       @if (errorMsg()) {
-        <div class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-3 py-2 text-xs">
+        <div class="flex items-center gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800
+                    text-red-700 dark:text-red-400 rounded-xl px-3 py-2.5 text-xs font-medium">
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
@@ -355,13 +366,14 @@
       }
     </div>
 
-    <!-- Bouton valider (fixe en bas) -->
-    <div class="px-4 pb-4 pt-2 border-t border-slate-100 dark:border-slate-800 shrink-0">
+    <!-- Bouton Valider -->
+    <div class="px-4 pb-4 pt-2.5 border-t border-slate-100 dark:border-slate-800 shrink-0">
       <button type="button" (click)="validateSale()" [disabled]="!canValidate()"
-              class="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl
-                     text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700
-                     disabled:opacity-40 disabled:cursor-not-allowed
-                     transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.98]">
+              class="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl
+                     text-sm font-bold text-white
+                     bg-emerald-600 hover:bg-emerald-700
+                     disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:dark:bg-slate-700 disabled:text-slate-500
+                     transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98]">
         @if (processing()) {
           <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -369,7 +381,7 @@
           </svg>
           Traitement…
         } @else {
-          <lucide-icon [img]="icons.Check" [size]="16" />
+          <lucide-icon [img]="icons.Check" [size]="17" />
           Valider · {{ formatPrice(grandTotal()) }}
         }
       </button>
@@ -377,30 +389,31 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     MODAL — Ticket de caisse
-══════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════
+     MODAL — Ticket
+══════════════════════════════════ -->
 @if (showReceipt() && lastSale()) {
   <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
     <div class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden print-ticket">
 
-      <div class="bg-indigo-600 px-6 py-6 text-center text-white">
-        <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-3">
-          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <!-- Header ticket -->
+      <div class="bg-emerald-600 px-6 py-5 text-center text-white">
+        <div class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-3">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </div>
-        <p class="text-xl font-black tracking-tight">{{ shop()?.nom ?? 'YAAHW' }}</p>
-        <p class="text-sm text-indigo-200 mt-1 capitalize">{{ shop()?.type_commerce }}</p>
-        <p class="text-xs text-indigo-300 mt-1">{{ formatDate(lastSale()!.created_at) }}</p>
+        <p class="text-base font-bold tracking-tight">{{ shop()?.nom ?? 'YAAHW' }}</p>
+        <p class="text-sm text-emerald-100 mt-0.5 capitalize">{{ shop()?.type_commerce }}</p>
+        <p class="text-xs text-emerald-200 mt-1">{{ formatDate(lastSale()!.created_at) }}</p>
       </div>
 
-      <div class="px-6 py-5">
+      <div class="px-6 py-4">
         <div class="space-y-2 mb-4">
           @for (item of lastSale()!.items; track item.id) {
             <div class="flex justify-between text-sm">
               <span class="text-slate-600 dark:text-slate-300">{{ item.nom_produit }} × {{ item.quantite }}</span>
-              <span class="font-bold text-slate-900 dark:text-slate-100">{{ formatPrice(item.montant) }}</span>
+              <span class="font-semibold text-slate-900 dark:text-slate-100">{{ formatPrice(item.montant) }}</span>
             </div>
           }
         </div>
@@ -415,32 +428,33 @@
               <span>TVA</span><span>{{ formatPrice(lastSale()!.tva_montant) }}</span>
             </div>
           }
-          <div class="flex justify-between font-black text-slate-900 dark:text-white text-base pt-1">
-            <span>TOTAL</span><span class="text-indigo-600">{{ formatPrice(lastSale()!.montant_total) }}</span>
+          <div class="flex justify-between font-bold text-slate-900 dark:text-white text-base pt-1">
+            <span>TOTAL</span>
+            <span class="text-emerald-600">{{ formatPrice(lastSale()!.montant_total) }}</span>
           </div>
-          <div class="flex justify-between text-xs text-slate-400 pt-1">
+          <div class="flex justify-between text-xs text-slate-400 pt-0.5">
             <span>{{ paymentLabel(lastSale()!.mode_paiement) }}</span>
             <span>{{ formatPrice(lastSale()!.montant_recu) }}</span>
           </div>
           @if (lastSale()!.monnaie_rendue > 0) {
-            <div class="flex justify-between text-sm font-bold text-emerald-600">
+            <div class="flex justify-between text-sm font-semibold text-emerald-600">
               <span>Monnaie rendue</span><span>{{ formatPrice(lastSale()!.monnaie_rendue) }}</span>
             </div>
           }
           @if (receiptCustomer()) {
             <div class="flex justify-between text-sm text-slate-600 dark:text-slate-300 pt-2 border-t border-dashed border-slate-200 dark:border-slate-700">
               <span class="font-medium">Client</span>
-              <span class="font-bold">{{ receiptCustomer()!.nom }}</span>
+              <span class="font-semibold">{{ receiptCustomer()!.nom }}</span>
             </div>
           }
         </div>
-        <p class="text-center text-xs text-slate-400 mt-5 font-medium">Merci pour votre achat !</p>
+        <p class="text-center text-xs text-slate-400 mt-4">Merci pour votre achat !</p>
       </div>
 
       <div class="flex gap-3 px-5 pb-5">
         <button (click)="printReceipt()"
-                class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold
-                       border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200
+                class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold
+                       border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200
                        hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
@@ -448,7 +462,8 @@
           Imprimer
         </button>
         <button (click)="closeReceipt()"
-                class="flex-1 py-3 rounded-xl text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md shadow-indigo-500/20">
+                class="flex-1 py-2.5 rounded-xl text-sm font-bold text-white
+                       bg-emerald-600 hover:bg-emerald-700 transition shadow-md shadow-emerald-500/20">
           Nouvelle vente
         </button>
       </div>
@@ -456,16 +471,16 @@
   </div>
 }
 
-<!-- ══════════════════════════════════════════════════
+<!-- ══════════════════════════════════
      MODAL — Historique
-══════════════════════════════════════════════════ -->
+══════════════════════════════════ -->
 @if (showHistory()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
     <div class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden max-h-[80vh] flex flex-col">
 
-      <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
         <div>
-          <h2 class="text-base font-black text-slate-900 dark:text-white">Historique des ventes</h2>
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">Historique des ventes</h2>
           <p class="text-xs text-slate-400 mt-0.5">Transactions récentes</p>
         </div>
         <button (click)="closeHistory()"
@@ -479,23 +494,26 @@
       <div class="overflow-y-auto flex-1 px-5 py-4 space-y-2">
         @if (loadingHistory()) {
           <div class="flex justify-center py-10">
-            <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            <div class="w-7 h-7 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         } @else if (history().length === 0) {
           <div class="text-center py-10">
-            <lucide-icon [img]="icons.Receipt" [size]="36" class="text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+            <lucide-icon [img]="icons.Receipt" [size]="32" class="text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <p class="text-slate-400 text-sm font-medium">Aucune vente enregistrée</p>
           </div>
         } @else {
           @for (sale of history(); track sale.id) {
-            <div class="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 transition-colors">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+            <div class="flex items-center gap-3 p-3.5 rounded-2xl
+                        bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700
+                        hover:border-slate-200 dark:hover:border-slate-600 transition-colors">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                    [ngClass]="{
                      'bg-emerald-50 dark:bg-emerald-950/30': sale.mode_paiement === 'especes',
-                     'bg-orange-50  dark:bg-orange-950/30':  sale.mode_paiement === 'orange_money',
-                     'bg-blue-50    dark:bg-blue-950/30':    sale.mode_paiement === 'moov_money'
+                     'bg-orange-50 dark:bg-orange-950/30':  sale.mode_paiement === 'orange_money',
+                     'bg-blue-50 dark:bg-blue-950/30':      sale.mode_paiement === 'moov_money'
                    }">
-                <lucide-icon [img]="sale.mode_paiement === 'especes' ? icons.Banknote : icons.Smartphone" [size]="17"
+                <lucide-icon [img]="sale.mode_paiement === 'especes' ? icons.Banknote : icons.Smartphone"
+                             [size]="16"
                              [ngClass]="{
                                'text-emerald-600': sale.mode_paiement === 'especes',
                                'text-orange-500':  sale.mode_paiement === 'orange_money',
@@ -503,21 +521,23 @@
                              }" />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-bold text-slate-900 dark:text-slate-100">{{ formatPrice(sale.montant_total) }}</p>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ formatPrice(sale.montant_total) }}</p>
                 <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(sale.created_at) }}</p>
                 <div class="flex flex-wrap gap-1 mt-1.5">
                   @for (item of sale.items; track item.id) {
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 font-medium">
+                    <span class="text-[10px] px-2 py-0.5 rounded-full
+                                 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600
+                                 text-slate-500 dark:text-slate-300 font-medium">
                       {{ item.nom_produit }} ×{{ item.quantite }}
                     </span>
                   }
                 </div>
               </div>
-              <span class="text-[10px] px-2.5 py-1.5 rounded-lg font-bold shrink-0"
+              <span class="text-[10px] px-2.5 py-1 rounded-lg font-semibold shrink-0"
                     [ngClass]="{
                       'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300': sale.mode_paiement === 'especes',
-                      'bg-orange-100  text-orange-700  dark:bg-orange-900/40  dark:text-orange-300':  sale.mode_paiement === 'orange_money',
-                      'bg-blue-100    text-blue-700    dark:bg-blue-900/40    dark:text-blue-300':    sale.mode_paiement === 'moov_money'
+                      'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300':    sale.mode_paiement === 'orange_money',
+                      'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300':            sale.mode_paiement === 'moov_money'
                     }">
                 {{ paymentLabel(sale.mode_paiement) }}
               </span>
