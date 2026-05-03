@@ -1,5 +1,5 @@
 // src/app/dashboard/sales/receipt.util.ts
-import JsBarcode from 'jsbarcode';
+import QRCode from 'qrcode';
 import { Sale, PaymentMethod, PAYMENT_METHODS } from './sale.model';
 
 export interface ReceiptData {
@@ -8,7 +8,7 @@ export interface ReceiptData {
   shopType:    string;
   devise:      string;
   customerNom?: string | null;
-  barcodeSvg?: string; // SVG string généré avant l'impression
+  qrDataUrl?:  string; // data URL PNG généré avant l'impression
 }
 
 function fmt(n: number, devise: string): string {
@@ -20,47 +20,58 @@ function paymentLabel(method: PaymentMethod | string): string {
 }
 
 /**
- * Génère un code-barres CODE128 sous forme de SVG string.
- * Encode : articles, date, total — lisible par tout scanner de code-barres.
- * Synchrone, 100 % hors-ligne.
+ * Génère un QR code encodant toutes les infos du ticket.
+ * Scannable avec n'importe quel téléphone, sans application.
+ * Retourne une data URL PNG (async).
  */
-export function generateBarcodeSvg(sale: Sale, devise: string): string {
-  // Données compactes pour le code-barres
-  const date = new Date(sale.created_at)
-    .toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-    .replace(/\//g, '-');
-
-  const articles = sale.items
-    .map(i => `${i.nom_produit.slice(0, 12)} x${i.quantite}`)
-    .join(', ');
-
-  const data = `${date} | ${articles} | ${sale.montant_total}${devise}`;
-
-  // Créer un <svg> virtuel dans le DOM (navigateur uniquement)
-  const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-
-  JsBarcode(svgEl, data, {
-    format:       'CODE128',
-    width:        1.2,
-    height:       45,
-    displayValue: true,
-    fontSize:     8,
-    margin:       4,
-    fontOptions:  'bold',
-    font:         'monospace',
-    lineColor:    '#000000',
-    background:   '#ffffff',
-    textMargin:   2,
+export async function generateQrCode(
+  sale: Sale,
+  shopNom: string,
+  devise: string,
+): Promise<string> {
+  const date = new Date(sale.created_at).toLocaleString('fr-FR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
   });
 
-  return svgEl.outerHTML;
+  const articles = sale.items
+    .map(i => `• ${i.nom_produit} x${i.quantite} = ${i.montant.toLocaleString('fr-FR')} ${devise}`)
+    .join('\n');
+
+  const clientLigne = sale.customer?.nom ?? sale.customer_nom
+    ? `Client : ${sale.customer?.nom ?? sale.customer_nom}\n`
+    : '';
+
+  const remiseLigne = sale.remise_montant > 0
+    ? `Remise : -${sale.remise_montant.toLocaleString('fr-FR')} ${devise}\n`
+    : '';
+
+  const data = [
+    `🏪 ${shopNom}`,
+    `📅 ${date}`,
+    ``,
+    articles,
+    ``,
+    remiseLigne.trim() ? remiseLigne.trim() : null,
+    `💳 ${paymentLabel(sale.mode_paiement)}`,
+    clientLigne.trim() ? clientLigne.trim() : null,
+    ``,
+    `TOTAL : ${sale.montant_total.toLocaleString('fr-FR')} ${devise}`,
+  ].filter(l => l !== null).join('\n');
+
+  return QRCode.toDataURL(data, {
+    errorCorrectionLevel: 'M',
+    margin: 1,
+    width: 200,
+    color: { dark: '#000000', light: '#ffffff' },
+  });
 }
 
 /**
  * Génère le HTML complet du ticket de caisse (format thermique 80mm).
  */
 export function buildReceiptHtml(d: ReceiptData): string {
-  const { sale, shopNom, shopType, devise, barcodeSvg } = d;
+  const { sale, shopNom, shopType, devise, qrDataUrl } = d;
   const customerNom = d.customerNom ?? sale.customer?.nom ?? sale.customer_nom ?? null;
 
   const date = new Date(sale.created_at).toLocaleString('fr-FR', {
@@ -84,10 +95,11 @@ export function buildReceiptHtml(d: ReceiptData): string {
   const clientRow = customerNom
     ? `<tr><td>Client</td><td class="r"><strong>${customerNom}</strong></td></tr>` : '';
 
-  // Section code-barres
-  const barcodeSection = barcodeSvg
-    ? `<div class="barcode-wrap">
-        ${barcodeSvg}
+  // Section QR code
+  const qrSection = qrDataUrl
+    ? `<div class="qr-wrap">
+        <img src="${qrDataUrl}" alt="QR Code ticket" />
+        <p class="qr-hint">Scannez pour retrouver votre ticket</p>
        </div>`
     : '';
 
@@ -152,18 +164,25 @@ export function buildReceiptHtml(d: ReceiptData): string {
       line-height: 1.6;
     }
 
-    /* ── Code-barres ── */
-    .barcode-wrap {
+    /* ── QR Code ── */
+    .qr-wrap {
       margin-top: 10px;
       padding-top: 8px;
       border-top: 1px dashed #000;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
     }
-    .barcode-wrap svg {
-      width: 100% !important;
-      max-width: 72mm;
-      height: auto !important;
+    .qr-wrap img {
+      width: 120px;
+      height: 120px;
+    }
+    .qr-hint {
+      font-size: 8px;
+      color: #666;
+      text-align: center;
+      font-style: italic;
     }
   </style>
 </head>
@@ -197,7 +216,7 @@ export function buildReceiptHtml(d: ReceiptData): string {
     &Agrave; bient&ocirc;t&nbsp;!
   </div>
 
-  ${barcodeSection}
+  ${qrSection}
 
 </body>
 </html>`;
